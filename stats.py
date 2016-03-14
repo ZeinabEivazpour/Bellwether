@@ -21,22 +21,26 @@ class counter():
         self.FN += 1
 
   def stats(self):
+    Sen  = self.TP / (self.TP + self.FN)
+    Spec = self.TN / (self.TN + self.FP)
     try:
-      Sen  = self.TP / (self.TP + self.FN)
-      Spec = self.TN / (self.TN + self.FP)
+      Prec = self.TP / (self.TP + self.FP)
+    except:
       Prec = 0
+
+    try:
+      Acc  = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
+    except:
       Acc  = 0
-      # F1   = 0
 
-      # G    = 0
-      # Prec = self.TP / (self.TP + self.FP)
-      # Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
-      F1 = 2 * self.TP / (2 * self.TP + self.FP + self.FN)
+    F1 = 2 * self.TP / (2 * self.TP + self.FP + self.FN)
+    try: F2 = 5 * Prec * Sen/ (4 * Prec + Sen)
+    except: F2 = 0
+    G  = 2 * Sen * Spec / (Sen + Spec)
+    G1 = sqrt(Sen*Prec)
+    G2 = sqrt(Sen*Spec)
 
-      G = 2 * Sen * Spec / (Sen + Spec)
-      G1 = sqrt(Sen**2+(1-Spec)**2)
-    except: set_trace()
-    return Sen, 1 - Spec, Prec, Acc, F1, G1, G
+    return Sen, 1 - Spec, Prec, Acc, F1, F2, G1, G2, G
 
 
 class ABCD():

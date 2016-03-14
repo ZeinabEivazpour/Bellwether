@@ -74,7 +74,7 @@ class simulate():
     src = data(dataName=self.file)
     self.test = createTbl(src.test, isBin=True)
 
-    if len(src.train)<12: train=src.train[0]
+    if len(src.train)<9: train=src.train[0]
     else: train=src.train
     for file in train:
 
@@ -93,7 +93,10 @@ class simulate():
             smoteit=True)
 
         p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
-        onlyMe.append(p_buggy[1].stats()[-1])
+
+        # set_trace()
+
+        onlyMe.append(p_buggy[1].stats()[-2])
 
       everything.append(onlyMe)
 
@@ -103,9 +106,8 @@ class simulate():
     #   set_trace()
 
 if __name__ == "__main__":
-  for file in ['camel', 'ant', 'ivy',
-               'jedit', 'log4j', 'pbeans',
-               'lucene', 'poi', 'synapse',
-               'velocity', 'xalan', 'xerces']:
+  for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+               'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+
     print('### ' + file)
     simulate(file).bellwether()

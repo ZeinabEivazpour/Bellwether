@@ -119,8 +119,8 @@ def parTune():
   "Parallel Tuning"
   import csv
   gather=[]
-  files = ['ant', 'camel', 'ivy', 'jedit', 'log4j', 'pbeans', 'lucene'
-          ,'poi', 'synapse', 'velocity', 'xalan', 'xerces']
+  files = ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+          'lucene', 'poi', 'velocity', 'xalan', 'xerces']
 
   n_proc=len(files)
   print('Tuning with DE, on %d threads'%(n_proc))
