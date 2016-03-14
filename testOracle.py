@@ -1,5 +1,11 @@
 from __future__ import print_function, division
 import logo
+
+# For the love of alien sex, don't generate a pyc file >:(
+import sys
+sys.dont_write_bytecode = True
+
+
 from Prediction import *
 import dEvol
 from methods1 import *
