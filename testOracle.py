@@ -109,10 +109,10 @@ def tunings(file):
     train = data(dataName=file).train[-1]
     param = dEvol.tuner(rforest, train)
     param.insert(0, file)
+    return param
+
   except:
     print(file)
-
-  return param
 
 def parTune():
 

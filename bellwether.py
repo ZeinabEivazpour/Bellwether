@@ -25,7 +25,7 @@ from demos import cmd
 import numpy as np
 import pandas as pd
 import csv
-from numpy import sum
+from numpy import sum, mean, std
 #*/
 
 
@@ -76,15 +76,18 @@ class simulate():
 
     if len(src.train)<9: train=src.train[0]
     else: train=src.train
+    header=[" "]
+    onlyMe = [self.file]
     for file in train:
 
       try: fname = file[0].split('/')[-2]
       except: set_trace()
 
+      header.append(fname)
       self.train = createTbl(file, isBin=True)
-      onlyMe = [self.file+'-'+fname]
 
       for _ in xrange(10):
+        val=[]
         actual = Bugs(self.test)
         predicted = rforest(
             self.train,
@@ -93,14 +96,17 @@ class simulate():
             smoteit=True)
 
         p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
+        val.append(p_buggy[1].stats()[-2])
+      onlyMe.append("%0.2f +/- %0.2f"%(mean(val), std(val)))
 
-        # set_trace()
 
-        onlyMe.append(p_buggy[1].stats()[-2])
+    for a,b in zip(header, onlyMe):
+      print(a, '  \t  ', b)
 
-      everything.append(onlyMe)
-
-    rdivDemo(everything)
+    set_trace()
+    #   everything.append(onlyMe)
+    #
+    # rdivDemo(everything)
 
     # ---------- DEBUG ----------
     #   set_trace()
