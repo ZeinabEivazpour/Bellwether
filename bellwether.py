@@ -103,8 +103,9 @@ class simulate():
     for a,b in zip(header, onlyMe):
       print(a, '  \t  ', b)
 
-    set_trace()
-    #   everything.append(onlyMe)
+    # set_trace()
+
+    # everything.append(onlyMe)
     #
     # rdivDemo(everything)
 
