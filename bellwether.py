@@ -29,9 +29,6 @@ from numpy import sum
 #*/
 
 
-
-
-
 class data():
 
   """
