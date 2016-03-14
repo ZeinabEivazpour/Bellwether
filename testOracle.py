@@ -5,10 +5,10 @@ import logo
 import sys
 sys.dont_write_bytecode = True
 
-
 from Prediction import *
 import dEvol
 from methods1 import *
+from multiprocessing import Pool
 
 
 class counter():
@@ -103,26 +103,34 @@ class testOracle():
     # ---------- DEBUG ----------
     #   set_trace()
 
-def tunings():
+def tunings(file):
   "Save tunings"
+  train = data(dataName=file).train[-1]
+  param = dEvol.tuner(rforest, train)
+  param.insert(0, file)
+  return param
+
+def parTune():
+
+  "Parallel Tuning"
   import csv
+  gather=[]
+  files = ['ant', 'camel', 'ivy', 'jedit', 'log4j', 'pbeans', 'lucene'
+          ,'poi', 'synapse', 'velocity', 'xalan', 'xerces']
+
+  n_proc=len(files)
+  print('Tuning with DE, on %d threads'%(n_proc))
+  pool=Pool(processes=n_proc)
+  gather.append(pool.map(tunings, files))
   with open('tunings.csv', 'w+') as csvfile:
     spam=csv.writer(csvfile, delimiter=',', quotechar="|", quoting=csv.QUOTE_NONNUMERIC)
-
-    for file in ['ant', 'camel', 'ivy',
-                 'jedit', 'log4j', 'pbeans',
-                 'lucene', 'poi', 'synapse',
-                 'velocity', 'xalan', 'xerces']:
-      train = data(dataName=file).train[-1]
-      param = dEvol.tuner(rforest, train)
-      param.insert(0, file)
-      set_trace()
-      csvfile.writerow(param)
+    for val in gather:
+      csvfile.writerow(gather)
 
 
 if __name__ == "__main__":
 
-  tunings()
+  parTune()
 
 
   # for file in ['ant', 'camel', 'ivy',
