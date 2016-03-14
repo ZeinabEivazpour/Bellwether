@@ -106,7 +106,7 @@ class testOracle():
 def tunings():
   "Save tunings"
   import csv
-  with open('tunings.dat', 'w+') as csvfile:
+  with open('tunings.csv', 'w+') as csvfile:
     spam=csv.writer(csvfile, delimiter=',', quotechar="|", quoting=csv.QUOTE_NONNUMERIC)
 
     for file in ['ant', 'camel', 'ivy',
