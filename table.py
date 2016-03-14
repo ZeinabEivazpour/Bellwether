@@ -4,7 +4,11 @@ from demos  import *
 from counts import *
 from fi     import *
 import re  
+
+# For the love of alien sex, don't generate a pyc file >:(
 import sys
+sys.dont_write_bytecode = True
+
 from settings import *
 sys.dont_write_bytecode = True
 from pdb import set_trace
