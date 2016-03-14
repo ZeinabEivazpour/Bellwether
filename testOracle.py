@@ -105,6 +105,7 @@ class testOracle():
 
 def tunings(file):
   "Save tunings"
+  print(file)
   train = data(dataName=file).train[-1]
   param = dEvol.tuner(rforest, train)
   param.insert(0, file)
@@ -131,6 +132,8 @@ def parTune():
 if __name__ == "__main__":
 
   parTune()
+  # try: parTune()
+  # except: set_trace()
 
 
   # for file in ['ant', 'camel', 'ivy',
