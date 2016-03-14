@@ -1,10 +1,10 @@
 #! /Users/rkrsn/anaconda/bin/python
-from pdb import set_trace
 from os import environ, getcwd
-from os import walk
 from os.path import expanduser
-from pdb import set_trace
+
+# For the love of alien sex, don't generate a pyc file >:(
 import sys
+sys.dont_write_bytecode = True
 
 # Update PYTHONPATH
 HOME = expanduser('~')
@@ -15,8 +15,12 @@ sys.path.extend([axe, pystat, cwd])
 
 from scipy.spatial.distance import euclidean
 from random import choice, seed as rseed, uniform as rand
-import pandas as pd
 from table import *
+
+
+from os import walk
+from pdb import set_trace
+import pandas as pd
 
 
 def SMOTE(data=None, k=5, atleast=100, atmost=100, bugIndx=2, resample=False):

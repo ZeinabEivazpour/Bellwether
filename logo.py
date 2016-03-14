@@ -1,3 +1,7 @@
+# For the love of alien sex, don't generate a pyc file >:(
+import sys
+sys.dont_write_bytecode = True
+
 print("""
 
  ____     ___  _      _      __    __    ___ ______  __ __    ___  ____
