@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-
+import logo
 from Prediction import *
 import dEvol
 from methods1 import *
@@ -97,13 +97,34 @@ class testOracle():
     # ---------- DEBUG ----------
     #   set_trace()
 
-if __name__ == "__main__":
-  for file in ['ant', 'camel', 'ivy',
-               'jedit', 'log4j', 'pbeans',
-               'lucene', 'poi', 'synapse',
-               'velocity', 'xalan', 'xerces']:
-    print('### ' + file + ': Tuned')
-    testOracle(file).main()
+def tunings():
+  "Save tunings"
+  import csv
+  with open('tunings.dat', 'w+') as csvfile:
+    spam=csv.writer(csvfile, delimiter=',', quotechar="|", quoting=csv.QUOTE_NONNUMERIC)
 
-    print('### ' + file + ': Untuned')
-    testOracle(file, tuned=False).main()
+    for file in ['ant', 'camel', 'ivy',
+                 'jedit', 'log4j', 'pbeans',
+                 'lucene', 'poi', 'synapse',
+                 'velocity', 'xalan', 'xerces']:
+      train = data(dataName=file).train[-1]
+      param = dEvol.tuner(rforest, train)
+      param.insert(0, file)
+      set_trace()
+      csvfile.writerow(param)
+
+
+if __name__ == "__main__":
+
+  tunings()
+
+
+  # for file in ['ant', 'camel', 'ivy',
+  #              'jedit', 'log4j', 'pbeans',
+  #              'lucene', 'poi', 'synapse',
+  #              'velocity', 'xalan', 'xerces']:
+  #   print('### ' + file + ': Tuned')
+  #   testOracle(file).main()
+  #
+  #   print('### ' + file + ': Untuned')
+  #   testOracle(file, tuned=False).main()
