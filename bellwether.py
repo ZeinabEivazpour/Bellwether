@@ -109,9 +109,8 @@ class simulate():
       p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
       # val.append(p_buggy[1].stats()[-2])
       val.append([fname, "%0.2f"%p_buggy[1].stats()[-3], "%0.2f"%p_buggy[1].stats()[0], "%0.2f"%p_buggy[1].stats()[1]])
-    table_rows.append(sorted(val, key=lambda F: float(F[1])))
-    try: table.add_rows(table_rows)
-    except: set_trace()
+    table_rows.extend(sorted(val, key=lambda F: float(F[1]), reverse=True))
+    table.add_rows(table_rows)
     print(table.draw(), "\n")
 
     # for a,b in zip(header[1:], onlyMe[1:]):
