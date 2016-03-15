@@ -86,7 +86,7 @@ class simulate():
     table.set_cols_dtype(['t', 't', 't', 't'])
     table_rows=[["Dataset", "G2", "Pd", "Pf"]]
 
-    if len(src.train)<9: train=src.train[0]
+    if len(src.train)==1: train=src.train[0]
     else: train=src.train
     header=[" "]
     # onlyMe = [self.file]
@@ -125,8 +125,9 @@ class simulate():
     #   set_trace()
 
 if __name__ == "__main__":
-  for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
-               'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+  # for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+  #              'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
 
+  for file in ['ant', 'ivy', 'jedit', 'lucene', 'poi']:
     print('### ' + file)
     simulate(file).bellwether()
