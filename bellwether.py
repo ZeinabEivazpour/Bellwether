@@ -17,6 +17,7 @@ from Prediction import *
 from methods1 import *
 import dEvol
 from stats import ABCD
+from texttable import Texttable
 from sk import rdivDemo
 import logo
 #/*Unused references
@@ -78,10 +79,18 @@ class simulate():
     src = data(dataName=self.file)
     self.test = createTbl(src.test, isBin=True)
 
+    "Pretty Print Thresholds"
+    table = Texttable()
+    table.set_cols_align(["l","l","l","l"])
+    table.set_cols_valign(["m","m","m","m"])
+    table.set_cols_dtype(['t', 't', 't', 't'])
+    table_rows=[["Dataset", "G2", "Pd", "Pf"]]
+
     if len(src.train)<9: train=src.train[0]
     else: train=src.train
     header=[" "]
-    onlyMe = [self.file]
+    # onlyMe = [self.file]
+    val=[]
     for file in train:
 
       try: fname = file[0].split('/')[-2]
@@ -90,21 +99,23 @@ class simulate():
       header.append(fname)
       self.train = createTbl(file, isBin=True)
 
-      for _ in xrange(1):
-        val=[]
-        actual = Bugs(self.test)
-        predicted = rforest(
-            self.train,
-            self.test,
-            tunings=self.param,
-            smoteit=True)
+      # for _ in xrange(1):
+      actual = Bugs(self.test)
+      predicted = rforest(
+          self.train,
+          self.test,
+          tunings=self.param,
+          smoteit=True)
+      p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
+      # val.append(p_buggy[1].stats()[-2])
+      val.append([fname, "%0.2f"%p_buggy[1].stats()[-3], "%0.2f"%p_buggy[1].stats()[0], "%0.2f"%p_buggy[1].stats()[1]])
+    table_rows.append(sorted(val, key=lambda F: float(F[1])))
+    try: table.add_rows(table_rows)
+    except: set_trace()
+    print(table.draw(), "\n")
 
-        p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
-        val.append(p_buggy[1].stats()[-2])
-      onlyMe.append((mean(val), 1.96*std(val)))
-
-    for a,b in zip(header[1:], sorted(onlyMe[1:], key=lambda F: F[0])):
-      print(a+'  \t  '+"%0.2f +/- %0.2f"%(b[0], b[1]))
+    # for a,b in zip(header[1:], onlyMe[1:]):
+    #   print(a+'  \t  '+"%0.2f , %0.2f"%(b[0], b[1]))
 
     # set_trace()
     # everything.append(onlyMe)
