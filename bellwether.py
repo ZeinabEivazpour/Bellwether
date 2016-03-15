@@ -28,6 +28,10 @@ import csv
 from numpy import sum, mean, std
 #*/
 
+def getTunings(fname):
+  raw = pd.read_csv('tunings.csv').transpose().values.tolist()
+  formatd = pd.DataFrame(raw[1:], columns=raw[0])
+  return formatd[fname].values.tolist()
 
 class data():
 
@@ -64,10 +68,10 @@ class data():
 
 class simulate():
 
-  def __init__(self, file='ant', tune=False):
+  def __init__(self, file='ant', tune=True):
     self.file = file
-    self.param = dEvol.tuner(rforest, data(dataName=self.file).train[-1]) if \
-        tune else None
+    self.param = getTunings(file)
+    # set_trace()
 
   def bellwether(self):
     everything=[]
