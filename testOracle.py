@@ -126,10 +126,11 @@ def parTune():
   print('Tuning with DE, on %d threads'%(n_proc))
   pool=Pool(processes=n_proc)
   gather.append(pool.map(tunings, files))
+  set_trace()
   with open('tunings.csv', 'w+') as csvfile:
     spam=csv.writer(csvfile, delimiter=',', quotechar="|", quoting=csv.QUOTE_NONNUMERIC)
     for val in gather:
-      csvfile.writerow(gather)
+      csvfile.writerow(val)
 
 
 if __name__ == "__main__":
