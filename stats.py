@@ -39,8 +39,8 @@ class counter():
     G  = 2 * Sen * Spec / (Sen + Spec)
     G1 = sqrt(Sen*Prec)
     G2 = sqrt(Sen*Spec)
-
-    return Sen, 1 - Spec, Prec, Acc, F1, F2, G1, G2, G
+    ED = sqrt(0.7*(1-Sen)**2+0.3*(1-Spec)**2) # Distance from perfect detection
+    return Sen, 1 - Spec, Prec, Acc, F1, F2, G1, G2, ED, G
 
 
 class ABCD():

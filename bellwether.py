@@ -90,7 +90,7 @@ class simulate():
       header.append(fname)
       self.train = createTbl(file, isBin=True)
 
-      for _ in xrange(10):
+      for _ in xrange(1):
         val=[]
         actual = Bugs(self.test)
         predicted = rforest(
@@ -101,14 +101,12 @@ class simulate():
 
         p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
         val.append(p_buggy[1].stats()[-2])
-      onlyMe.append("%0.2f +/- %0.2f"%(mean(val), std(val)))
+      onlyMe.append((mean(val), 1.96*std(val)))
 
-
-    for a,b in zip(header, onlyMe):
-      print(a, '  \t  ', b)
+    for a,b in zip(header[1:], sorted(onlyMe[1:], key=lambda F: F[0])):
+      print(a+'  \t  '+"%0.2f +/- %0.2f"%(b[0], b[1]))
 
     # set_trace()
-
     # everything.append(onlyMe)
     #
     # rdivDemo(everything)

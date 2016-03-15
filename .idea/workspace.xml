@@ -8,7 +8,11 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bellwether.py" afterPath="$PROJECT_DIR$/bellwether.py" />
+<<<<<<< HEAD
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tunings.csv" afterPath="$PROJECT_DIR$/tunings.csv" />
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stats.py" afterPath="$PROJECT_DIR$/stats.py" />
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
     </list>
     <ignored path="Bellwether.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,12 +32,21 @@
     <favorites_list name="Bellwether" />
   </component>
   <component name="FileEditorManager">
+<<<<<<< HEAD
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="bellwether.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bellwether.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.62068963">
               <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+=======
+    <leaf>
+      <file leaf-file-name="bellwether.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/bellwether.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.6640701">
+              <caret line="101" column="28" selection-start-line="101" selection-start-column="28" selection-end-line="101" selection-end-column="28" />
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
               <folding />
             </state>
           </provider>
@@ -43,7 +56,7 @@
         <entry file="file://$PROJECT_DIR$/stats.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+              <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
               <folding />
             </state>
           </provider>
@@ -118,6 +131,10 @@
         <option value="$PROJECT_DIR$/smote.py" />
         <option value="$PROJECT_DIR$/table.py" />
         <option value="$PROJECT_DIR$/testOracle.py" />
+<<<<<<< HEAD
+=======
+        <option value="$PROJECT_DIR$/stats.py" />
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
         <option value="$PROJECT_DIR$/bellwether.py" />
       </list>
     </option>
@@ -446,6 +463,7 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/bellwether.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -463,6 +481,9 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/testOracle.py">
+=======
+    <entry file="file://$PROJECT_DIR$/Test Oracle/w2.py">
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -508,6 +529,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/stats.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -555,10 +577,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+=======
     <entry file="file://$PROJECT_DIR$/testOracle.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -566,6 +585,31 @@
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bellwether.py">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state vertical-scroll-proportion="0.0">
+          <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+=======
+        <state vertical-scroll-proportion="0.6640701">
+          <caret line="101" column="28" selection-start-line="101" selection-start-column="28" selection-end-line="101" selection-end-column="28" />
+          <folding />
+>>>>>>> f9d9b33ffa9fc7a05b0daad353c2236f919d79b8
         </state>
       </provider>
     </entry>
