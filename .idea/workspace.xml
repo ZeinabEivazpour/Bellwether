@@ -3,7 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="04aab96a-9839-4bdd-b014-37a29c4a0ad2" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testOracle.py" afterPath="$PROJECT_DIR$/testOracle.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bellwether.py" afterPath="$PROJECT_DIR$/bellwether.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stats.py" afterPath="$PROJECT_DIR$/stats.py" />
     </list>
     <ignored path="Bellwether.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -24,11 +25,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="bellwether.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="bellwether.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bellwether.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.6640701">
+              <caret line="101" column="28" selection-start-line="101" selection-start-column="28" selection-end-line="101" selection-end-column="28" />
               <folding />
             </state>
           </provider>
@@ -38,16 +39,16 @@
         <entry file="file://$PROJECT_DIR$/stats.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+              <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testOracle.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="testOracle.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/testOracle.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5618306">
+            <state vertical-scroll-proportion="0.0">
               <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
@@ -108,12 +109,13 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/bellwether.py" />
         <option value="$PROJECT_DIR$/w2.py" />
         <option value="$PROJECT_DIR$/logo.py" />
         <option value="$PROJECT_DIR$/smote.py" />
         <option value="$PROJECT_DIR$/table.py" />
         <option value="$PROJECT_DIR$/testOracle.py" />
+        <option value="$PROJECT_DIR$/stats.py" />
+        <option value="$PROJECT_DIR$/bellwether.py" />
       </list>
     </option>
   </component>
@@ -435,14 +437,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stats.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Test Oracle/w2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -487,21 +481,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/bellwether.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/testOracle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5618306">
+        <state vertical-scroll-proportion="0.0">
           <caret line="128" column="13" selection-start-line="128" selection-start-column="13" selection-end-line="128" selection-end-column="13" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stats.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="46" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bellwether.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6640701">
+          <caret line="101" column="28" selection-start-line="101" selection-start-column="28" selection-end-line="101" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>
