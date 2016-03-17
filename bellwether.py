@@ -73,7 +73,7 @@ class simulate():
   def __init__(self, file='ant', type='jur', tune=True):
     self.file  = file
     self.type  = type
-    self.param = getTunings(file)
+    self.param = None if not tune else getTunings(file)
     # set_trace()
 
   def bellwether(self):
@@ -122,15 +122,15 @@ class simulate():
 def nasa():
     for file in ['ar', "cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
       print('### ' + file)
-      simulate(file, type='nasa').bellwether()
+      simulate(file, type='nasa', tune=False).bellwether()
 
 
 def jur():
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
 
-    print('### ' + file)
-    simulate(file, type='jur').bellwether()
+      print('### ' + file)
+      simulate(file, type='jur').bellwether()
 
 if __name__ == "__main__":
   nasa()
