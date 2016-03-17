@@ -26,7 +26,7 @@ def explore(dir):
 def main():
     projects = [Name for _, Name, __ in walk('./')][0]
     numData = len(projects)  # Number of data
-    one, two = explore(dir)
+    one, two = explore('./')
     data = [one[i] + two[i] for i in xrange(len(one))]
     set_trace()
 
