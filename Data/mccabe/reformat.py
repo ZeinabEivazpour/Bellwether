@@ -28,7 +28,17 @@ def main():
     numData = len(projects)  # Number of data
     one, two = explore('./')
     data = [one[i] + two[i] for i in xrange(len(one))]
-    set_trace()
+    for dat in data:
+      for file in dat:
+        body=[]
+        raw= pd.read_csv(file)
+        headers=raw.columns
+        for b in raw.values:
+          body.append([a if idx<len(headers)-1 else 0 if a==False or a=='N' else 1 for idx,a in enumerate(b)])
+        new=pd.DataFrame(body, columns=headers)
+        pd.to_csv(file)
+        set_trace()
+
 
 if __name__=='__main__':
   main()
