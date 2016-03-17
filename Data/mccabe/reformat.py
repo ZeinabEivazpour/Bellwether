@@ -34,10 +34,10 @@ def main():
         raw= pd.read_csv(file)
         headers=raw.columns
         for b in raw.values:
-          body.append([a if idx<len(headers)-1 else 0 if a==False or a=='N' else 1 for idx,a in enumerate(b)])
+          body.append([a if idx<len(headers)-1 else 0 if a==False or a=='N' or a==0 else 1 for idx,a in enumerate(b)])
         new=pd.DataFrame(body, columns=headers)
-        pd.to_csv(file)
-        set_trace()
+        new.to_csv(file)
+        # set_trace()
 
 
 if __name__=='__main__':
