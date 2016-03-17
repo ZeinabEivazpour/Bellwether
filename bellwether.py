@@ -40,7 +40,8 @@ class data():
   Hold training and testing data
   """
 
-  def __init__(self, dataName='ant', dir="./Data/Jureczko"):
+  def __init__(self, dataName='ant', type='jur'):
+    dir = "./Data/Jureczko" if type=='jur' else "./Data/mccabe"
     projects = [Name for _, Name, __ in walk(dir)][0]
     numData = len(projects)  # Number of data
     one, two = explore(dir)
@@ -69,21 +70,17 @@ class data():
 
 class simulate():
 
-  def __init__(self, file='ant', tune=True):
-    self.file = file
+  def __init__(self, file='ant', type='jur', tune=True):
+    self.file  = file
+    self.type  = type
     self.param = getTunings(file)
     # set_trace()
 
   def bellwether(self):
     everything=[]
-    src = data(dataName=self.file)
+    src = data(dataName=self.file, type=self.type)
     self.test = createTbl(src.test, isBin=True)
 
-    "Pretty Print Thresholds"
-    table = Texttable()
-    table.set_cols_align(["l","l","l","l"])
-    table.set_cols_valign(["m","m","m","m"])
-    table.set_cols_dtype(['t', 't', 't', 't'])
     table_rows=[["Dataset", "G2", "Pd", "Pf"]]
 
     if len(src.train)==1: train=src.train[0]
@@ -110,24 +107,36 @@ class simulate():
       # val.append(p_buggy[1].stats()[-2])
       val.append([fname, "%0.2f"%p_buggy[1].stats()[-3], "%0.2f"%p_buggy[1].stats()[0], "%0.2f"%p_buggy[1].stats()[1]])
     table_rows.extend(sorted(val, key=lambda F: float(F[1]), reverse=True))
+
+    "Pretty Print Thresholds"
+    table = Texttable()
+    table.set_cols_align(["l","l","l","l"])
+    table.set_cols_valign(["m","m","m","m"])
+    table.set_cols_dtype(['t', 't', 't', 't'])
     table.add_rows(table_rows)
     print(table.draw(), "\n")
-
-    # for a,b in zip(header[1:], onlyMe[1:]):
-    #   print(a+'  \t  '+"%0.2f , %0.2f"%(b[0], b[1]))
-
-    # set_trace()
-    # everything.append(onlyMe)
-    #
-    # rdivDemo(everything)
 
     # ---------- DEBUG ----------
     #   set_trace()
 
+def nasa():
+    for file in ['ar', "cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
+      print('### ' + file)
+      simulate(file, type='nasa').bellwether()
+
+
+def jur():
+    for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+               'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+
+    print('### ' + file)
+    simulate(file, type='jur').bellwether()
+
 if __name__ == "__main__":
+  nasa()
   # for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
   #              'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
-
-  for file in ['ant', 'ivy', 'jedit', 'lucene', 'poi']:
-    print('### ' + file)
-    simulate(file).bellwether()
+  #
+  # # for file in ['ant', 'ivy', 'jedit', 'lucene', 'poi']:
+  #   print('### ' + file)
+  #   simulate(file).bellwether()
