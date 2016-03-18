@@ -133,7 +133,7 @@ def whatsInNasa():
     for f in dat:
       raw = pd.read_csv(f)
       oldCol=raw.columns.values.tolist()
-      newCol = [c for c in oldCol if c in ref]+
+      newCol = [c for c in oldCol if c in ref]
       new = raw[newCol]
       new.to_csv(re.sub('mccabe', 'newMcCabes', f), index=False)
       # set_trace()
@@ -141,7 +141,7 @@ def whatsInNasa():
 
 
 def nasa():
-    for file in ['ar', "cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
+    for file in ["cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
       print('### ' + file)
       simulate(file, type='nasa', tune=False).bellwether()
 
@@ -154,8 +154,8 @@ def jur():
       simulate(file, type='jur').bellwether()
 
 if __name__ == "__main__":
-  # nasa()
-  whatsInNasa()
+  nasa()
+  # whatsInNasa()
   # for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
   #              'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
   #
