@@ -127,9 +127,9 @@ def whatsInNasa():
   projects = [Name for _, Name, __ in walk(dir)][0]
   one, two = explore(dir)
   data = [one[i] + two[i] for i in xrange(len(one))]
-  try: ref  = pd.read_csv(data[2][0]).columns.values.tolist[1:]
+  try: ref  = pd.read_csv(data[2][0]).columns.values.tolist()[1:]
   except: set_trace()
-  for dat in data:
+  for dat in data[1:]:
     for f in dat:
       raw = pd.read_csv(f)
       oldCol=raw.columns.values.tolist()
