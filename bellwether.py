@@ -133,9 +133,10 @@ def whatsInNasa():
     for f in dat:
       raw = pd.read_csv(f)
       oldCol=raw.columns.values.tolist()
-      newCol = [c for c in oldCol if c in ref]
+      newCol = [c for c in oldCol if c in ref]+
       new = raw[newCol]
-      set_trace()
+      new.to_csv(re.sub('mccabe', 'newMcCabes', f), index=False)
+      # set_trace()
 
 
 
