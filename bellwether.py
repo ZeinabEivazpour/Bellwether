@@ -119,6 +119,25 @@ class simulate():
     # ---------- DEBUG ----------
     #   set_trace()
 
+def whatsInNasa():
+  "Explore the Dataset"
+
+  # for file in ["cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
+  dir      = './Data/mccabe'
+  projects = [Name for _, Name, __ in walk(dir)][0]
+  one, two = explore(dir)
+  data = [one[i] + two[i] for i in xrange(len(one))]
+  ref  = pd.read_csv(data[2][0]).columns.values.tolist[1:]
+  for dat in data:
+    for f in dat:
+      raw = pd.read_csv(f)
+      oldCol=raw.columns.values.tolist()
+      newCol = [c for c in oldCol if c in ref]
+      new = raw[newCol]
+      set_trace()
+
+
+
 def nasa():
     for file in ['ar', "cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
       print('### ' + file)
@@ -133,7 +152,8 @@ def jur():
       simulate(file, type='jur').bellwether()
 
 if __name__ == "__main__":
-  nasa()
+  # nasa()
+  whatsInNasa()
   # for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
   #              'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
   #
