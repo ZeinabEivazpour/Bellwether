@@ -30,7 +30,7 @@ from sk import rdivDemo
 from pdb import set_trace
 
 def formatData(tbl):
-  Rows = [i.cells for i in tbl._rows]
+  Rows = [i.cells[1:] for i in tbl._rows]
   headers = [i.name for i in tbl.headers]
   try: return pd.DataFrame(Rows, columns=headers)
   except: set_trace()
