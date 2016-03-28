@@ -34,8 +34,10 @@ def logo():
      jgs   | \| \\
            `##`##
 
+    Author: Rahul Krishna
 
            """)
+
 
 if __name__ == "__main__":
     pass
