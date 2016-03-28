@@ -41,11 +41,11 @@ def rforest(train, test, tunings=None, smoteit=True, duplicate=True):
     test_DF = formatData(test)
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
+    clf.fit(train_DF[features], klass)
     try:
-        clf.fit(train_DF[features], klass)
-    except:
+        preds = clf.predict(test_DF[test_DF.columns[:-2]])
+    except ValueError:
         set_trace()
-    preds = clf.predict(test_DF[test_DF.columns[:-2]])
     return preds
 
 
