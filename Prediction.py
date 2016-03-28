@@ -41,7 +41,7 @@ def rforest(train, test, tunings=None, smoteit=True, duplicate=True):
     testdf = formatdata(test)
     columns = testdf.columns
     if len(traindf.columns) != len(traindf.columns):
-        columns = traindf.columns if len(traindf.columns) < len(traindf.columns) else testdf.columns
+        columns = traindf.columns if len(traindf.columns) < len(testdf.columns) else testdf.columns
     features = columns[:-2]
     klass = traindf[traindf.columns[-2]]
     clf.fit(traindf[features], klass)

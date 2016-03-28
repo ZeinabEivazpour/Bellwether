@@ -134,7 +134,7 @@ def whatsInNasa():
 
 
 def nasa():
-    for file in ["cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
+    for file in ["cm", "jm", "kc", "mc", "mw", "pc2"]:
         print('### ' + file)
         simulate(file, type='nasa', tune=False).bellwether()
 
