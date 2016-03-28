@@ -35,9 +35,9 @@ class data():
         one, two = explore(dir)
         data = [one[i] + two[i] for i in xrange(len(one))]
 
-        def withinClass(data):
-            N = len(data)
-            return [(data[:n], [data[n]]) for n in range(1, N)]
+        # def withinClass(data):
+        #     N = len(data)
+        #     return [(data[:n], [data[n]]) for n in range(1, N)]
 
         def whereis():
             for indx, name in enumerate(projects):
@@ -45,14 +45,11 @@ class data():
                     return indx
 
         loc = whereis()
-
         self.train = []
         self.test = []
         for idx, dat in enumerate(data):
             if idx != loc:
                 self.train.append(dat)
-                # else:
-                #   self.train.append(dat[:-1])
         self.test = data[loc]
 
 
@@ -115,7 +112,7 @@ class simulate():
 
 
 def whatsInNasa():
-    "Explore the Dataset"
+    """Explore the Data set"""
 
     # for file in ["cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
     dir = './Data/mccabe'
