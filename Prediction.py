@@ -37,13 +37,16 @@ def rforest(train, test, tunings=None, smoteit=True, duplicate=True):
                                      max_features=tunings[1] / 100,
                                      min_samples_leaf=int(tunings[2]),
                                      min_samples_split=int(tunings[3]))
-    train_DF = formatdata(train)
-    test_DF = formatdata(test)
-    features = train_DF.columns[:-2]
-    klass = train_DF[train_DF.columns[-2]]
-    clf.fit(train_DF[features], klass)
+    traindf = formatdata(train)
+    testdf = formatdata(test)
+    columns = testdf.columns
+    if len(traindf.columns) != len(traindf.columns):
+        columns = traindf.columns if len(traindf.columns) < len(traindf.columns) else testdf.columns
+    features = columns[:-2]
+    klass = traindf[traindf.columns[-2]]
+    clf.fit(traindf[features], klass)
     try:
-        preds = clf.predict(test_DF[test_DF.columns[:-2]])
+        preds = clf.predict(testdf[features])
     except ValueError:
         set_trace()
     return preds
