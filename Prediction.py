@@ -5,17 +5,17 @@ from pdb import set_trace
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-from smote import *
+from smote import SMOTE
 
 
-def formatData(tbl):
+def formatdata(tbl):
     """Change data structure to pandas"""
     try:
         Rows = [i.cells for i in tbl._rows]
         headers = [i.name for i in tbl.headers]
         return pd.DataFrame(Rows, columns=headers)
     except:
-        Rows = [i.cells[1:] for i in tbl._rows]
+        Rows = [i.cells for i in tbl._rows]
         headers = [i.name for i in tbl.headers]
         return pd.DataFrame(Rows, columns=headers)
 
@@ -37,8 +37,8 @@ def rforest(train, test, tunings=None, smoteit=True, duplicate=True):
                                      max_features=tunings[1] / 100,
                                      min_samples_leaf=int(tunings[2]),
                                      min_samples_split=int(tunings[3]))
-    train_DF = formatData(train)
-    test_DF = formatData(test)
+    train_DF = formatdata(train)
+    test_DF = formatdata(test)
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)

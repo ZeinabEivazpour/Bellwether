@@ -31,7 +31,7 @@ def logo():
           \  || |
            | )| )
            | || |
-     jgs   | \| \\
+           | \| \\
            `##`##
 
     Author: Rahul Krishna
