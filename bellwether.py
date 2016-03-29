@@ -1,22 +1,13 @@
 #! /Users/rkrsn/miniconda/bin/python
 from __future__ import print_function, division
 
-import sys
-from os import environ, getcwd
-
-# Update PYTHONPATH
-HOME = environ['HOME']
-axe = HOME + '/git/axe/axe/'  # AXE
-pystat = HOME + '/git/pystats/'  # PySTAT
-cwd = getcwd()  # Current Directory
-sys.path.extend([axe, pystat, cwd])
+import pandas as pd
+from texttable import Texttable
 
 from Prediction import *
+from logo import logo
 from methods1 import *
 from stats import ABCD
-from texttable import Texttable
-from logo import logo
-import pandas as pd
 
 
 def getTunings(fname):
@@ -25,19 +16,26 @@ def getTunings(fname):
     return formatd[fname].values.tolist()
 
 
-class data():
+class data:
     """Hold training and testing data"""
 
     def __init__(self, dataName='ant', type='jur'):
-        dir = "./Data/Jureczko" if type == 'jur' else "./Data/mccabe"
-        projects = [Name for _, Name, __ in walk(dir)][0]
+        if type == 'ant':
+            dir = "./Data/Jureczko"
+        elif type == 'jur':
+            dir = "./Data/mccabe"
+        elif type == 'aeeem':
+            dir = "./Data/AEEEM"
+        elif type == "relink":
+            dir = './Data/Relink'
+
+        try:
+            projects = [Name for _, Name, __ in walk(dir)][0]
+        except:
+            set_trace()
         numData = len(projects)  # Number of data
         one, two = explore(dir)
         data = [one[i] + two[i] for i in xrange(len(one))]
-
-        # def withinClass(data):
-        #     N = len(data)
-        #     return [(data[:n], [data[n]]) for n in range(1, N)]
 
         def whereis():
             for indx, name in enumerate(projects):
@@ -53,7 +51,7 @@ class data():
         self.test = data[loc]
 
 
-class simulate():
+class simulate:
     def __init__(self, file='ant', type='jur', tune=True):
         self.file = file
         self.type = type
@@ -145,17 +143,23 @@ def jur():
         print('### ' + file)
         simulate(file, type='jur').bellwether()
 
+
 def aeeem():
-    for file in ["cm", "jm", "kc", "mc", "mw"]:
+    print("AEEEM\n------\n```")
+    for file in ["EQ", "JDT", "LC", "ML", "PDE"]:
         print('### ' + file)
-        simulate(file, type='nasa', tune=False).bellwether()
+        simulate(file, type='aeeem', tune=False).bellwether()
+    print('```')
 
 def relink():
-    for file in ["cm", "jm", "kc", "mc", "mw"]:
+    print("Relink\n------\n```")
+    for file in ["Apache", "Safe", "Zxing"]:
         print('### ' + file)
-        simulate(file, type='nasa', tune=False).bellwether()
+        simulate(file, type='relink', tune=False).bellwether()
+    print("```")
 
 if __name__ == "__main__":
     logo()  # Print logo
-    nasa()
+    # nasa()
     # jur()
+    aeeem()
