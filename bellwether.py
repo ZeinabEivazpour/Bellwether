@@ -131,16 +131,20 @@ def whatsInNasa():
 
 
 def nasa():
+    print("NASA\n------\n```")
     for file in ["cm", "jm", "kc", "mc", "mw"]:
         print('### ' + file)
         simulate(file, type='nasa', tune=False).bellwether()
+    print('```')
 
 
 def jur():
+    print("Jureczko\n------\n```")
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                  'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
         print('### ' + file)
         simulate(file, type='jur').bellwether()
+    print('```')
 
 
 def aeeem():
@@ -163,4 +167,5 @@ if __name__ == "__main__":
     logo()  # Print logo
     # nasa()
     # jur()
-    aeeem()
+    # aeeem()
+    relink()
