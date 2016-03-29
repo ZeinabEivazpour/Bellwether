@@ -19,9 +19,9 @@ class data:
     """Hold training and testing data"""
 
     def __init__(self, dataName='ant', type='jur'):
-        if type == 'ant':
+        if type == 'jur':
             dir = "./Data/Jureczko"
-        elif type == 'jur':
+        elif type == 'nasa':
             dir = "./Data/mccabe"
         elif type == 'aeeem':
             dir = "./Data/AEEEM"
@@ -182,3 +182,4 @@ if __name__ == "__main__":
     # jur()
     # aeeem()
     # relink()
+    attributes('jur')
