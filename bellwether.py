@@ -1,7 +1,6 @@
 #! /Users/rkrsn/miniconda/bin/python
 from __future__ import print_function, division
 
-import pandas as pd
 from texttable import Texttable
 
 from Prediction import *
@@ -151,12 +150,14 @@ def aeeem():
         simulate(file, type='aeeem', tune=False).bellwether()
     print('```')
 
+
 def relink():
     print("Relink\n------\n```")
     for file in ["Apache", "Safe", "Zxing"]:
         print('### ' + file)
         simulate(file, type='relink', tune=False).bellwether()
     print("```")
+
 
 if __name__ == "__main__":
     logo()  # Print logo
