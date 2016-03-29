@@ -130,6 +130,19 @@ def whatsInNasa():
             # set_trace()
 
 
+def attributes(type='jur'):
+    """ Returns total instances, and no. of bug in a file"""
+    from Prediction import formatdata
+    for name in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+                 'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+        src = data(dataName=name, type=type)
+        test = src.test
+        dat = createTbl(test, isBin=True)
+        dframe = formatdata(dat)
+        bugs = dframe[dframe.columns[-2]].values
+        print(name+","+len(bugs)+","+sum(bugs)+","+len(dframe.columns[:-2]))
+
+
 def nasa():
     print("NASA\n------\n```")
     for file in ["cm", "jm", "kc", "mc", "mw"]:
@@ -168,4 +181,4 @@ if __name__ == "__main__":
     # nasa()
     # jur()
     # aeeem()
-    relink()
+    # relink()
