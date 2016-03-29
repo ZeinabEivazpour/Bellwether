@@ -30,10 +30,7 @@ def do():
                         writer.writerow(body[:-1]+[0])
                     else:
                         writer.writerow(body[:-1]+[1])
-                    # else:
-                    #   print('arff' in file)
-                    #   # set_trace()
-            # set_trace()
+
 
 if __name__ == '__main__':
     do()
