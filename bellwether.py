@@ -145,6 +145,15 @@ def jur():
         print('### ' + file)
         simulate(file, type='jur').bellwether()
 
+def aeeem():
+    for file in ["cm", "jm", "kc", "mc", "mw"]:
+        print('### ' + file)
+        simulate(file, type='nasa', tune=False).bellwether()
+
+def relink():
+    for file in ["cm", "jm", "kc", "mc", "mw"]:
+        print('### ' + file)
+        simulate(file, type='nasa', tune=False).bellwether()
 
 if __name__ == "__main__":
     logo()  # Print logo
