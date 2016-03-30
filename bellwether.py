@@ -1,11 +1,10 @@
 #! /Users/rkrsn/miniconda/bin/python
 from __future__ import print_function, division
 
-from texttable import Texttable
-
 from Prediction import *
 from logo import logo
 from methods1 import *
+from sk import rdivDemo
 from stats import ABCD
 
 
@@ -72,75 +71,76 @@ class simulate:
         # onlyMe = [self.file]
         val = []
         for file in train:
-
-            try:
-                fname = file[0].split('/')[-2]
-            except:
-                set_trace()
-
+            fname = file[0].split('/')[-2]
+            e = [fname]
             header.append(fname)
-            try:
-                self.train = createTbl(file, isBin=True)
-            except:
-                set_trace()
-
+            self.train = createTbl(file, isBin=True)
             actual = Bugs(self.test)
-            predicted = rforest(
-                self.train,
-                self.test,
-                tunings=self.param,
-                smoteit=True)
-            p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
-            val.append([fname, "%0.2f" % p_buggy[1].stats()[-2], "%0.2f" % p_buggy[1].stats()[-3]
-                           , "%0.2f" % p_buggy[1].stats()[0], "%0.2f" % p_buggy[1].stats()[1]])
+            for _ in xrange(10):
+                predicted = rforest(
+                    self.train,
+                    self.test,
+                    tunings=self.param,
+                    smoteit=True)
+                p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
+                e.append(p_buggy[1].stats()[-2])
 
-        table_rows.extend(sorted(val, key=lambda F: float(F[2]), reverse=True))
+                # val.append([fname, "%0.2f" % p_buggy[1].stats()[-2], "%0.2f" % p_buggy[1].stats()[-3]
+                #                , "%0.2f" % p_buggy[1].stats()[0], "%0.2f" % p_buggy[1].stats()[1]])
+            everything.append(e)
 
-        "Pretty Print Thresholds"
-        table = Texttable()
-        table.set_cols_align(["l", 'l', "l", "l", "l"])
-        table.set_cols_valign(["m", "m", "m", "m", "m"])
-        table.set_cols_dtype(['t', 't', 't', 't', 't'])
-        table.add_rows(table_rows)
-        print(table.draw(), "\n")
+        rdivDemo(everything)
+
+        # table_rows.extend(sorted(val, key=lambda F: float(F[2]), reverse=True))
+        #
+        # "Pretty Print Thresholds"
+        # table = Texttable()
+        # table.set_cols_align(["l", 'l', "l", "l", "l"])
+        # table.set_cols_valign(["m", "m", "m", "m", "m"])
+        # table.set_cols_dtype(['t', 't', 't', 't', 't'])
+        # table.add_rows(table_rows)
+        # print(table.draw(), "\n")
 
         # ---------- DEBUG ----------
         #   set_trace()
 
 
-def whatsInNasa():
-    """Explore the Data set"""
-
-    # for file in ["cm", "jm", "kc", "mc", "mw", "pc", "pc2"]:
-    dir = './Data/mccabe'
-    projects = [Name for _, Name, __ in walk(dir)][0]
-    one, two = explore(dir)
-    data = [one[i] + two[i] for i in xrange(len(one))]
-    try:
-        ref = pd.read_csv(data[2][0]).columns.values.tolist()[1:]
-    except:
-        set_trace()
-    for dat in data[1:]:
-        for f in dat:
-            raw = pd.read_csv(f)
-            oldCol = raw.columns.values.tolist()
-            newCol = [c for c in oldCol if c in ref]
-            new = raw[newCol]
-            new.to_csv(re.sub('mccabe', 'newMcCabes', f), index=False)
-            # set_trace()
-
-
 def attributes(type='jur'):
     """ Returns total instances, and no. of bug in a file"""
     from Prediction import formatdata
-    for name in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
-                 'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
-        src = data(dataName=name, type=type)
-        test = src.test
-        dat = createTbl(test, isBin=True)
-        dframe = formatdata(dat)
-        bugs = dframe[dframe.columns[-2]].values
-        print(name+","+len(bugs)+","+sum(bugs)+","+len(dframe.columns[:-2]))
+    if type == 'jur':
+        for name in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
+                     'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+            src = data(dataName=name, type=type)
+            test = src.test
+            dat = createTbl(test, isBin=True)
+            dframe = formatdata(dat)
+            bugs = dframe[dframe.columns[-2]].values
+            print(name, len(bugs), str(sum(bugs)) + " (%0.2f)" % (sum(bugs) / len(bugs) * 100))
+    elif type == 'nasa':
+        for name in ["cm", "jm", "kc", "mc", "mw"]:
+            src = data(dataName=name, type=type)
+            test = src.test
+            dat = createTbl(test, isBin=True)
+            dframe = formatdata(dat)
+            bugs = dframe[dframe.columns[-2]].values
+            print(name, len(bugs), str(sum(bugs)) + " (%0.2f)" % (sum(bugs) / len(bugs) * 100))
+    elif type == 'aeeem':
+        for name in ["EQ", "JDT", "LC", "ML", "PDE"]:
+            src = data(dataName=name, type=type)
+            test = src.test
+            dat = createTbl(test, isBin=True)
+            dframe = formatdata(dat)
+            bugs = dframe[dframe.columns[-2]].values
+            print(name, len(bugs), str(sum(bugs)) + " (%0.2f)" % (sum(bugs) / len(bugs) * 100))
+    elif type == 'relink':
+        for name in ["Apache", "Safe", "Zxing"]:
+            src = data(dataName=name, type=type)
+            test = src.test
+            dat = createTbl(test, isBin=True)
+            dframe = formatdata(dat)
+            bugs = dframe[dframe.columns[-2]].values
+            print(name, len(bugs), str(sum(bugs)) + " (%0.2f)" % (sum(bugs) / len(bugs) * 100))
 
 
 def nasa():
@@ -178,8 +178,12 @@ def relink():
 
 if __name__ == "__main__":
     logo()  # Print logo
-    # nasa()
-    # jur()
-    # aeeem()
-    # relink()
-    attributes('jur')
+    nasa()
+    jur()
+    aeeem()
+    relink()
+    # attributes('jur')
+    # attributes('nasa')
+    # attributes('aeeem')
+    # print("")
+    # attributes('relink')
