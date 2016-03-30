@@ -89,7 +89,7 @@ class simulate:
                 #                , "%0.2f" % p_buggy[1].stats()[0], "%0.2f" % p_buggy[1].stats()[1]])
             everything.append(e)
 
-        rdivDemo(everything)
+        rdivDemo(everything, isLatex=True)
 
         # table_rows.extend(sorted(val, key=lambda F: float(F[2]), reverse=True))
         #
