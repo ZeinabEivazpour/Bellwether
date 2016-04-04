@@ -56,6 +56,14 @@ class simulate:
         self.param = None if not tune else getTunings(file)
         # set_trace()
 
+    def incrUpdates(self):
+        """When to update a reference set"""
+        everything = []
+        src = data(dataName=self.file, type=self.type)
+        set_trace()
+        self.test = createTbl(src.test, isBin=True)
+
+
     def bellwether(self):
         everything = []
         src = data(dataName=self.file, type=self.type)
@@ -156,7 +164,7 @@ def jur():
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                  'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
         print('### ' + file)
-        simulate(file, type='jur').bellwether()
+        simulate(file, type='jur').incrUpdates()
     print('```')
 
 
@@ -178,10 +186,10 @@ def relink():
 
 if __name__ == "__main__":
     logo()  # Print logo
-    nasa()
+    # nasa()
     jur()
-    aeeem()
-    relink()
+    # aeeem()
+    # relink()
     # attributes('jur')
     # attributes('nasa')
     # attributes('aeeem')

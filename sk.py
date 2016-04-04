@@ -570,7 +570,7 @@ def rdivDemo(data, isLatex=False, globalMinMax=True, high=1, low=0):
     print r'{\scriptsize \begin{tabular}{l@{~~~}l@{~~~}r@{~~~}r@{~~~}c}'
     print r'\arrayrulecolor{lightgray}'
     # min= %s, max= %s\\\\' % (int(lo),int(hi))
-    print r'\textbf{Rank} & \textbf{Treatment} & \textbf{Median} & \textbf{IQR} & \\\hline'
+    print r'\textbf{Rank} & \textbf{Dataset} & \textbf{Median} & \textbf{IQR} & \\\hline'
     last = None
     for _, __, x in sorted(ranks):
       q1, q2, q3 = x.quartiles()
