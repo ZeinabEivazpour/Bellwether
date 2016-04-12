@@ -26,7 +26,8 @@ class data:
             dir = "./Data/AEEEM"
         elif type == "relink":
             dir = './Data/Relink'
-
+        elif type == 'other':
+            dir = './Data/other/'
         try:
             projects = [Name for _, Name, __ in walk(dir)][0]
         except:
@@ -88,8 +89,7 @@ class simulate:
                 predicted = rforest(
                     self.train,
                     self.test,
-                    tunings=self.param,
-                    smoteit=True)
+                    tunings=self.param)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
                 e.append(p_buggy[1].stats()[-2])
 
@@ -184,10 +184,20 @@ def relink():
     print("```")
 
 
+def other():
+    print("Other\n------\n```")
+    files = [x[0].split('/')[-1] for x in walk('Data/other/')][1:]
+    for file in files:
+        print('### ' + file)
+        simulate(file, type='other', tune=False).bellwether()
+    print("```")
+
+
 if __name__ == "__main__":
     logo()  # Print logo
+    other()
     # nasa()
-    jur()
+    # jur()
     # aeeem()
     # relink()
     # attributes('jur')
