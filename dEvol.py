@@ -16,7 +16,7 @@ from settings import *
 from settingsWhere import *
 from pdb import set_trace
 from abcd import _Abcd
-from Prediction import rforest, CART, Bugs, where2prd
+from Prediction import *
 from methods1 import explore
 from methods1 import createTbl
 from random import uniform as rand, randint as randi, choice as any

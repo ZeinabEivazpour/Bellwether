@@ -551,6 +551,15 @@ Driver for the demos:
 
 def rdivDemo(data, isLatex=False, globalMinMax=True, high=1, low=0):
   if isLatex:
+    #     print(r"""\documentclass{article}
+    #     \usepackage{colortbl} % not sure if needed
+    #     \usepackage[table]{xcolor} % not sure if needed
+    #     %%%% needed %%%
+    #     \usepackage{picture}
+    #     \newcommand{\quart}[4]{\begin{picture}(100,6)%1
+    # {\color{black}\put(#3,3){\circle*{4}}\put(#1,3){\line(1,0){#2}}}\end{picture}}
+    #     \begin{document}
+    #     """)
     def z(x):
       return int(80 * (x - lo) / (hi - lo + 0.00001))
     data = map(lambda lst: Num(lst[0], lst[1:]),
@@ -570,7 +579,7 @@ def rdivDemo(data, isLatex=False, globalMinMax=True, high=1, low=0):
     print r'{\scriptsize \begin{tabular}{l@{~~~}l@{~~~}r@{~~~}r@{~~~}c}'
     print r'\arrayrulecolor{lightgray}'
     # min= %s, max= %s\\\\' % (int(lo),int(hi))
-    print r'\textbf{Rank} & \textbf{Dataset} & \textbf{Median} & \textbf{IQR} & \\\hline'
+    print r'\textbf{Rank} & \textbf{Treatment} & \textbf{Median} & \textbf{IQR} & \\\hline'
     last = None
     for _, __, x in sorted(ranks):
       q1, q2, q3 = x.quartiles()
