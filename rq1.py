@@ -61,7 +61,7 @@ class simulate:
         """When to update a reference set"""
         everything = []
         src = data(dataName=self.file, type=self.type)
-        set_trace()
+        # set_trace()
         self.test = createTbl(src.test, isBin=True)
 
 
@@ -90,8 +90,8 @@ class simulate:
                     self.train,
                     self.test,
                     tunings=self.param)
-                p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
-                e.append(p_buggy[1].stats()[-2])
+                p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
+                e.append(p_buggy[1].stats()[-1])
 
                 # val.append([fname, "%0.2f" % p_buggy[1].stats()[-2], "%0.2f" % p_buggy[1].stats()[-3]
                 #                , "%0.2f" % p_buggy[1].stats()[0], "%0.2f" % p_buggy[1].stats()[1]])
@@ -164,7 +164,7 @@ def jur():
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                  'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
         print('### ' + file)
-        simulate(file, type='jur').incrUpdates()
+        simulate(file, type='jur').bellwether()
     print('```')
 
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     logo()  # Print logo
     other()
     # nasa()
-    # jur()
+    jur()
     # aeeem()
     # relink()
     # attributes('jur')
