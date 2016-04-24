@@ -20,6 +20,11 @@ class data:
             dir = "./Data/AEEEM"
         elif type == "relink":
             dir = './Data/Relink'
+        elif type ==  "barak":
+            dir = "./Data/Turhan09"
+            projects = [Name for _, __, Name in walk(dir)][0]
+            self.train = [a for a in projects if dataName in a]
+            return
 
         try:
             projects = [Name for _, Name, __ in walk(dir)][0]
@@ -43,6 +48,7 @@ class data:
         self.test = data[loc]
 
 def knn(train, test):
+    "My version of KNN (uses lists, painfully slow, but it works)"
     lot = train._rows
     new = []
 
@@ -93,42 +99,73 @@ class simulate:
         self.type = type
 
     def turhan09(self):
-        pass
+
+        self.train = createTbl(data(dataName=self.file, type='barak').train, isBin=True)
+        self.test = createTbl(data(dataName=self.file, type=self.type).test, isBin=True)
+        e = ['Turhan09']
+        actual = Bugs(self.test)
+        for _ in xrange(10):
+            predicted = rforest(
+                self.train,
+                self.test)
+            p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
+            e.append(p_buggy[1].stats()[-2])
+        return e
 
     def turhan11(self):
-        pass
+
+        self.train = createTbl(data(dataName=self.file, type='barak').train, isBin=True)
+        self.test = createTbl(data(dataName=self.file, type=self.type).test, isBin=True)
+        e = ['Turhan11']
+        actual = Bugs(self.test)
+        for _ in xrange(10):
+            predicted = rforest(
+                self.train,
+                self.test,
+                picksome=True)
+            p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
+            e.append(p_buggy[1].stats()[-2])
+        return e
 
     def bellwether(self):
-        everything = []
-        src = data(dataName=self.file, type=self.type)
-        self.test = createTbl(src.test, isBin=True)
-        table_rows = [["Dataset", "ED", "G2", "Pd", "Pf"]]
 
-        if len(src.train) == 1:
-            train = src.train[0]
-        else:
-            train = src.train
+        if self.type == 'jur':
+            dir = 'Data/Jureczko/'
+            pos = 5
+        elif self.type == 'mccabe':
+            dir = 'Data/mccabe/'
+            pos = -2
+        elif self.type == 'aeeem':
+            dir = 'Data/AEEEM/'
+            pos = -3
+        elif self.type == 'Relink':
+            dir = 'Data/relink/'
+            pos = -2
 
-        header = [" "]
-        val = []
-        for file in train:
-            fname = file[0].split('/')[-2]
-            e = [fname]
-            header.append(fname)
-            self.train = createTbl(file, isBin=True)
-            actual = Bugs(self.test)
-            for _ in xrange(10):
-                predicted = rforest(
-                    self.train,
-                    self.test,
-                    tunings=self.param,
-                    smoteit=True)
-                p_buggy = [a for a in ABCD(before=actual, after=predicted).all()]
-                e.append(p_buggy[1].stats()[-2])
-            everything.append(e)
+        train, test = explore(dir)
+        bellwether = train.pop(pos) + test.pop(pos)
+        all = [t + tt for t, tt in zip(train, test)]
 
-        rdivDemo(everything, isLatex=True)
+        def getTest():
+          for dat in all:
+            if self.file == dat[0].split('/')[-2]:
+              return dat
 
+        try:
+            self.test = createTbl(getTest(), isBin=True)
+        except:
+            set_trace()
+        self.train = createTbl(bellwether, isBin=True)
+        e = ['Bellwether']
+
+        actual = Bugs(self.test)
+        for _ in xrange(10):
+            predicted = rforest(
+                self.train,
+                self.test)
+            p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
+            e.append(p_buggy[1].stats()[-2])
+        return e
 
 def nasa():
     print("NASA\n------\n```")
@@ -140,10 +177,14 @@ def nasa():
 
 def jur():
     print("Jureczko\n------\n```")
-    for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
-                 'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
+    for file in [ 'log4j', 'ant', 'camel', 'ivy', 'jedit'
+                 , 'poi', 'velocity', 'xalan', 'xerces']:
         print('### ' + file)
-        simulate(file, type='jur').barakFilter()
+        E = []
+        E.append(simulate(file, type='jur').turhan09())
+        E.append(simulate(file, type='jur').turhan11())
+        E.append(simulate(file, type='jur').bellwether())
+        rdivDemo(E, isLatex=True)
     print('```')
 
 

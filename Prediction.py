@@ -1,20 +1,32 @@
 from __future__ import division
 
 from sklearn.ensemble import RandomForestClassifier
-
+from random import shuffle
 from methods1 import *
 from smote import *
 
 
-def formatData(tbl):
+def formatData(tbl, picksome=False, addsome=None):
     """ Convert Tbl to Pandas DataFrame
 
     :param tbl: Thing object created using function createTbl
     :returns table in a DataFrame format
     """
+    some = []
     Rows = [i.cells for i in tbl._rows]
+    if picksome:
+        shuffle(Rows)
+        for i in xrange(int(len(Rows)*0.1)):
+            some.append(Rows.pop())
     headers = [i.name for i in tbl.headers]
-    return pd.DataFrame(Rows, columns=headers)
+
+    if addsome:
+        Rows.extend(addsome)
+
+    if picksome:
+        return pd.DataFrame(Rows, columns=headers), some
+    else:
+        return pd.DataFrame(Rows, columns=headers)
 
 
 def Bugs(tbl):
@@ -22,7 +34,7 @@ def Bugs(tbl):
     return cells
 
 
-def rforest(train, test, tunings=None):
+def rforest(train, test, tunings=None, picksome=False):
     """ Random Forest
 
     :param train:   Thing object created using function createTbl
@@ -43,8 +55,12 @@ def rforest(train, test, tunings=None):
                                      min_samples_leaf=int(tunings[2]),
                                      min_samples_split=int(tunings[3]))
 
-    train_DF = formatData(train)
-    test_DF = formatData(test)
+    if picksome:
+        train_DF, some = formatData(train, True)
+        test_DF = formatData(test, False, some)
+    else:
+        train_DF = formatData(train, False, None)
+        test_DF = formatData(test, False, None)
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)
