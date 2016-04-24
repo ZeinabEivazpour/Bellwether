@@ -55,12 +55,12 @@ def knn(train, test):
     new = list(set(new))
     return new
 
-class simulate:
+class makeDataSets:
     def __init__(self, file='ant', type='jur', tune=True):
         self.file = file
         self.type = type
 
-    def barakFilter(self):
+    def barak09(self):
         src = data(dataName=self.file, type=self.type)
         self.test = createTbl(src.test, isBin=True)
 
@@ -82,9 +82,21 @@ class simulate:
             set_trace()
 
         try:
-            File.to_csv(self.file+'.csv', index=False)
+            File.to_csv(self.file + '.csv', index=False)
         except:
             set_trace()
+
+
+class simulate:
+    def __init__(self, file='ant', type='jur', tune=True):
+        self.file = file
+        self.type = type
+
+    def turhan09(self):
+        pass
+
+    def turhan11(self):
+        pass
 
     def bellwether(self):
         everything = []
