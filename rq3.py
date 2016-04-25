@@ -23,7 +23,7 @@ class data:
         elif type ==  "barak":
             dir = "./Data/Turhan09"
             projects = [Name for _, __, Name in walk(dir)][0]
-            self.train = [a for a in projects if dataName in a]
+            self.train = [dir+'/'+a for a in projects if dataName in a]
             return
 
         try:
@@ -139,11 +139,14 @@ class simulate:
         elif self.type == 'aeeem':
             dir = 'Data/AEEEM/'
             pos = -3
-        elif self.type == 'Relink':
-            dir = 'Data/relink/'
+        elif self.type == 'relink':
+            dir = 'Data/Relink/'
             pos = -2
 
-        train, test = explore(dir)
+        try:
+            train, test = explore(dir)
+        except:
+            set_trace()
         bellwether = train.pop(pos) + test.pop(pos)
         all = [t + tt for t, tt in zip(train, test)]
 
@@ -220,8 +223,9 @@ if __name__ == "__main__":
     logo()  # Print logo
     # nasa()
     # jur()
-    aeeem()
+    # aeeem()
     relink()
+    # a
     # a
     # ttributes('jur')
     # attributes('nasa')
