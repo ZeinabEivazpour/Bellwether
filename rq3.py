@@ -71,6 +71,7 @@ class makeDataSets:
         self.test = createTbl(src.test, isBin=True)
 
         def flat(lst):
+            """Converts [[a,b],[c,d],...] to [a,b,c,d,...]"""
             new = []
             for l in lst:
                 new.extend(l)
@@ -171,7 +172,8 @@ def nasa():
     print("NASA\n------\n```")
     for file in ["cm", "jm", "kc", "mc", "mw"]:
         print('### ' + file)
-        simulate(file, type='nasa', tune=False).bellwether()
+        makeDataSets(file, type='nasa', tune=False).barak09()
+        # simulate(file, type='nasa', tune=False).bellwether()
     print('```')
 
 
@@ -190,27 +192,38 @@ def jur():
 
 def aeeem():
     print("AEEEM\n------\n```")
-    for file in ["EQ", "JDT", "LC", "ML", "PDE"]:
+    for file in ["EQ", "JDT", "ML", "PDE"]:
         print('### ' + file)
-        simulate(file, type='aeeem', tune=False).bellwether()
+        # makeDataSets(file, type='aeeem', tune=False).barak09()
+        E = []
+        E.append(simulate(file, type='aeeem').turhan09())
+        E.append(simulate(file, type='aeeem').turhan11())
+        E.append(simulate(file, type='aeeem').bellwether())
+        rdivDemo(E, isLatex=True)
     print('```')
 
 
 def relink():
     print("Relink\n------\n```")
-    for file in ["Apache", "Safe", "Zxing"]:
+    for file in ["Apache", "Zxing"]:
         print('### ' + file)
-        simulate(file, type='relink', tune=False).bellwether()
-    print("```")
+        # makeDataSets(file, type='relink', tune=False).barak09()
+        E = []
+        E.append(simulate(file, type='relink').turhan09())
+        E.append(simulate(file, type='relink').turhan11())
+        E.append(simulate(file, type='relink').bellwether())
+        rdivDemo(E, isLatex=True)
+    print('```')
 
 
 if __name__ == "__main__":
     logo()  # Print logo
     # nasa()
-    jur()
-    # aeeem()
-    # relink()
-    # attributes('jur')
+    # jur()
+    aeeem()
+    relink()
+    # a
+    # ttributes('jur')
     # attributes('nasa')
     # attributes('aeeem')
     # print("")
