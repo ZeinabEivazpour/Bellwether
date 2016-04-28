@@ -20,6 +20,10 @@ from makeAmodel import makeAModel
 # import matplotlib.pyplot as plt
 
 
+def toPandas():
+    import pandas as pd
+    
+
 def explore(dir):
     datasets = []
     for (dirpath, dirnames, filenames) in walk(dir):
