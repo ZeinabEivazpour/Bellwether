@@ -216,7 +216,7 @@ class tuneWhere2(object):
 
   def depen(self, row):
     # My where2pred() takes data in string format. Ex:
-    # '../Data/ant/ant-1.6.csv'
+    # '../data/ant/ant-1.6.csv'
     self.where = defaults().update(
         minSize=row[4], depthMin=int(
             row[5]), depthMax=int(
@@ -293,7 +293,7 @@ def tuner(model, data):
 
 if __name__ == '__main__':
   from timeit import time
-  data = explore(dir='../Data/')[0][5]  # Only training data to tune.
+  data = explore(dir='../data/')[0][5]  # Only training data to tune.
   print(data)
 #   set_trace()
   for m in [tuneRF]:
@@ -309,4 +309,4 @@ if __name__ == '__main__':
 #  import sk; xtile = sk.xtile
 #  print xtile(G)
 
- # main(dir = 'Data/')
+ # main(dir = 'data/')

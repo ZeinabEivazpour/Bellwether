@@ -90,7 +90,7 @@ def createTbl(
 
 
 def test_createTbl():
-    dir = '../Data/camel/camel-1.6.csv'
+    dir = '../data/camel/camel-1.6.csv'
     newTbl = createTbl([dir], _smote=False)
     newTblSMOTE = createTbl([dir], _smote=True)
     print(len(newTbl._rows), len(newTblSMOTE._rows))

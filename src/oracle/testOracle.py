@@ -61,7 +61,7 @@ class data():
     Hold training and testing data
     """
 
-    def __init__(self, dataName='ant', dir="./Data/Jureczko"):
+    def __init__(self, dataName='ant', dir="./data/Jureczko"):
         projects = [Name for _, Name, __ in walk(dir)][0]
         numData = len(projects)  # Number of data
         one, two = explore(dir)

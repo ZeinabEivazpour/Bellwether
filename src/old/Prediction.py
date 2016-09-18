@@ -70,7 +70,7 @@ def rforest(train, test, tunings=None, picksome=False):
 
 def _RF():
     "Test RF"
-    dir = 'Data/Jureczko'
+    dir = 'data/Jureczko'
     one, two = explore(dir)
     train, test = createTbl(one[0]), createTbl(two[0])
     actual = Bugs(test)

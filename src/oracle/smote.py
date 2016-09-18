@@ -100,7 +100,7 @@ def SMOTE(data=None, k=5, atleast=100, atmost=100, bugIndx=2, resample=False):
 
 
 def test_smote():
-  dir = '../Data/camel/camel-1.6.csv'
+  dir = '../data/camel/camel-1.6.csv'
   Tbl = createTbl([dir], _smote=False)
   newTbl = createTbl([dir], _smote=True)
   print(len(Tbl._rows), len(newTbl._rows))

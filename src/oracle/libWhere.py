@@ -203,7 +203,7 @@ def timing(f,repeats=10):
   return (time.clock() - time1)*1.0/repeats
 """
 
-## Data Completion Tool
+## data Completion Tool
 
 Fills in some details on a table of data. For example, 
 

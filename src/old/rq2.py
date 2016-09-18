@@ -19,13 +19,13 @@ class data:
 
     def __init__(self, dataName='ant', type='jur'):
         if type == 'jur':
-            dir = "./Data/Jureczko"
+            dir = "./data/Jureczko"
         elif type == 'nasa':
-            dir = "./Data/mccabe"
+            dir = "./data/mccabe"
         elif type == 'aeeem':
-            dir = "./Data/AEEEM"
+            dir = "./data/AEEEM"
         elif type == "relink":
-            dir = './Data/Relink'
+            dir = './data/Relink'
 
         try:
             projects = [Name for _, Name, __ in walk(dir)][0]

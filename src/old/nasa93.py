@@ -11,7 +11,7 @@ sys.dont_write_bytecode = True
 from lib import *
 """
 
-Data:
+data:
 
 """
 def nasa93():
