@@ -165,13 +165,13 @@ def go(f):
 ## Handling command line options.
 
 Convert command line to a function call.
-e.g. if the file lib.py ends with
+e.g. if the file jars.py ends with
 
     if __name__ == '__main__':eval(todo())
 
 then 
 
-    python lib.py myfun :a 1 :b fred  
+    python jars.py myfun :a 1 :b fred
 
 results in a call to  _myfun(a=1,b='fred')_.
 
