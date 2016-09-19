@@ -29,7 +29,7 @@ def fSelect(data, top_n=0.15):
 
 
 def _test_fselect():
-    data_DF = pd.read_csv("/Users/rkrsn/git/rahlk/Bellwether/src/data/Jureczko/ant/ant-1.7.csv")
+    data_DF = pd.read_csv(os.path.join(root, "data/Jureczko/ant/ant-1.7.csv"))
     new_df = fSelect(data_DF)
     # ----- Debug -----
     set_trace()

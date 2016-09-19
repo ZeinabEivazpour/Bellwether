@@ -6,20 +6,24 @@ if root not in sys.path:
     sys.path.append(root)
 from pdb import set_trace
 
-from scipy import stats
-import networkx as nx
 import pandas as pd
 
+class dataset(object):
+    def __init__(self):
+        pass
+    def getRandomDataSet():
+        pass
 
-def KSAnalyzer():
-    pass
+class AEEEM(dataset):
+    def __init__(self):
+        self.dirpath = './AEEEM/'
+        self.projects = 
+        pass
 
-def _test__KSAnalyzer():
-    pass
+class Jureczko(dataset):
 
+class ReLink(dataset):
 
-def _test__weightedBipartite():
-    pass
-
+class NASA(dataset):
 
 if __name__ == "__main__":

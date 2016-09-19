@@ -1,1 +1,9 @@
 networkx
+scikit-learn
+scipy
+numpy
+pandas
+matplotlib
+click
+flask
+networkx
