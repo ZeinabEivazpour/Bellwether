@@ -15,14 +15,25 @@ def weightedBipartite(matches):
     Weighted Bipartite Matching Filter.
     Adapted from @WeiFoo's HDP codebase. See https://goo.gl/3AN2Qd.
     :param matches: Dictionary. Key is a pair (source, target). Value is p-value.
-                    Obatined from KSAnalyzer
+                    Obtained from KSAnalyzer
     :return: Best bipartite pair from the matches.
     """
+
+    # Tags for source and target metrics.
+    s_tag = "_s"
+    t_tag = "_t"
     G = nx.Graph()
     for key, val in matches.iteritems():
-        set_trace()
         G.add_edge(key[0] + "_s", key[1] + "_t", weight=val)  # add suffix to make it unique
     result = nx.max_weight_matching(G)
+
+    """
+    We only want matched pairs with (S->T) and (T<-S). Remove singletons;
+    i.e., only (S->T) or only (T->S)
+    """
+
+    for attr_1, attr_2 in result.iteritems():
+
     return result
 
 
@@ -41,7 +52,7 @@ def _test__weightedBipartite():
         pretty = pprint.PrettyPrinter(indent=2)
         pretty.pprint(matched)
         print("Test Succeeded.")
-    except:
+    except Exception as e:
         print("Test Failed")
         # ----- Debug -----
         set_trace()
