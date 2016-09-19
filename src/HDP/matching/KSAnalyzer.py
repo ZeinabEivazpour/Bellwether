@@ -11,41 +11,66 @@ from utils import *
 from scipy.stats import ks_2samp
 import networkx as nx
 
+
 def KSAnalyzer(source, target, cutoff=0.05):
-    ## temp -- refactor
+    """
+
+    :param source: Source data set. Formatted as a Pandas DataFrame
+    :param target: Target data set. Formatted as a Pandas DataFrame
+    :param cutoff: P-Value Cutoff.
+    :return: Dictionary. Key is a pair (source, target). Value is p-value.
+    For example,
+
+    matches =
+    {
+        ('$cam', '$cam'): 0.45,
+        ('$cbo', '$cbo'): 0.40,
+        ('$cbo', '$wmc'): 0.27,
+        ('$loc', '$loc'): 0.22,
+        ('$npm', '$npm'): 0.16,
+        ('$rfc', '$rfc'): 0.98,
+        ('$wmc', '$wmc'): 0.60
+    }
+
+    """
     source = source[source.columns[3:-1]]  # Refactor!
     target = target[target.columns[3:-1]]  # Refactor!
     matches = dict()
 
-    for col_name_tgt in target:
-        lo = cutoff
-        matches.update({col_name_tgt: ()})
-        for col_name_src in source:
+    for col_name_src in source:
+        # matches.update({col_name_src: []})
+        for col_name_tgt in target:
             _, p_val = ks_2samp(source[col_name_src],
                                 target[col_name_tgt])
-            if p_val<lo:
-                matches[col_name_tgt] = (col_name_src, p_val)
-                lo = p_val
+            if p_val > cutoff:
+                matches.update({(col_name_src, col_name_tgt): p_val})
 
-    set_trace()
+    return matches
 
 
-def weightedBipartite():
-    pass
+def get_data():
+    return pd.read_csv(os.path.join(root, "data/Jureczko/ant/ant-1.6.csv")), \
+           pd.read_csv(os.path.join(root, "data/Jureczko/ant/ant-1.7.csv"))
 
 
 def _test__KSAnalyzer():
-    data0 = pd.read_csv(os.path.join(root, "data/Jureczko/ant/ant-1.6.csv"))
-    data1 = pd.read_csv(os.path.join(root, "data/Jureczko/ant/ant-1.7.csv"))
-    KSAnalyzer(source=data0, target=data1, cutoff=0.05)
-    # ----- Debug -----
-    set_trace()
-
-
-def _test__weightedBipartite():
-    pass
+    """
+    Test Kolmogorov Smirnov Analyzer
+    :return:
+    """
+    print("Testing KSAnalyzer()\n")
+    data0, data1 = get_data()
+    try:
+        matches = KSAnalyzer(source=data0, target=data1, cutoff=0.05)
+        import pprint
+        pretty = pprint.PrettyPrinter(indent=2)
+        pretty.pprint(matches)
+        print("Test Succeeded.")
+    except:
+        print("Test Failed")
+        # ----- Debug -----
+        set_trace()
 
 
 if __name__ == "__main__":
-    # set_trace()
     _test__KSAnalyzer()
