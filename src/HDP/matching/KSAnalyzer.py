@@ -16,11 +16,16 @@ def KSAnalyzer(source, target, cutoff=0.05):
     source = source[source.columns[3:-1]]  # Refactor!
     target = target[target.columns[3:-1]]  # Refactor!
     matches = dict()
-    for col_name_src, col_name_tgt in pairs(source, target):
 
-        _, p_val = ks_2samp(source[col_name_src],
-                            target[col_name_tgt])
-        print("{}\t{}\t{}".format(col_name_src, col_name_tgt, p_val))
+    for col_name_tgt in target:
+        lo = cutoff
+        matches.update({col_name_tgt: ()})
+        for col_name_src in source:
+            _, p_val = ks_2samp(source[col_name_src],
+                                target[col_name_tgt])
+            if p_val<lo:
+                matches[col_name_tgt] = (col_name_src, p_val)
+                lo = p_val
 
     set_trace()
 
