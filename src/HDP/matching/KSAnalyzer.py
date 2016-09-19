@@ -6,9 +6,9 @@ if root not in sys.path:
     sys.path.append(root)
 from pdb import set_trace
 
-from scipy import stats
-import networkx as nx
-import pandas as pd
+# from scipy import stats
+# import networkx as nx
+# import pandas as pd
 
 
 def KSAnalyzer():
@@ -23,3 +23,4 @@ def _test__weightedBipartite():
 
 
 if __name__ == "__main__":
+    set_trace()
