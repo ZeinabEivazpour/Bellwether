@@ -84,4 +84,4 @@ Bellwethers in Heterogeneous Transfer Learning
 
 
 
-![image](https://cloud.githubusercontent.com/assets/1433964/18678079/e34565dc-7f28-11e6-9965-d171e1275c0e.png)
+![image](https://cloud.githubusercontent.com/assets/1433964/18683314/bb73e438-7f3d-11e6-9498-d09134e35384.png)
