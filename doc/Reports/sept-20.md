@@ -17,7 +17,7 @@ Bellwethers in Heterogeneous Transfer Learning
 | xalan    |      |      |      |      |      |
 | xerces   |      | 0.64 |      |      | 0.52 |
 ```
-+ There are very few valid metric matches. Average of 1 or 2 metrics.
++ There are very few valid metric that matches. Average of 1 or 2 metrics.
 
 |    | pde | eq | jdt | lc | ml |
 |----|-----|----|-----|----|----|
