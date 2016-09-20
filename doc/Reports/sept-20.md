@@ -1,6 +1,6 @@
 Bellwethers in Heterogeneous Transfer Learning
 -----
-+ Tried using GENERATE--APPLY--MONITOR on HDP data sets
++ Tried using GENERATE--APPLY--MONITOR on HDP data sets. No distinguishable bellwether found.
 ```
 |          | EQ   | JDT  | LC*  | ML   | PDE  |
 |----------|------|------|------|------|------|
