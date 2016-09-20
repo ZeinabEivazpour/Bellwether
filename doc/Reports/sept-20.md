@@ -1,5 +1,20 @@
 Bellwethers in Heterogeneous Transfer Learning
 -----
++ Tried using GENERATE--APPLY--MONITOR on HDP data sets
+```
+|          | EQ   | JDT  | LC*  | ML   | PDE  |
+|----------|------|------|------|------|------|
+| Ant      |      |      |      | 0.54 | 0.49 |
+| camel    |      |      |      |      |      |
+| Ivy      |      |      | 0.54 |      |      |
+| Jedit    |      |      |      | 0.6  | 0.49 |
+| log4j    |      |      |      |      |      |
+| Lucene*  | 0.52 | 0.59 | 0.77 |      | 0.57 |
+| Poi      |      |      |      |      |      |
+| velocity |      |      | 0.66 |      |      |
+| xalan    |      |      |      |      |      |
+| xerces   |      | 0.64 |      |      | 0.52 |
+```
 + There are very few valid metric matches. Average of 1 or 2 metrics.
 
 |    | pde | eq | jdt | lc | ml |
