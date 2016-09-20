@@ -52,10 +52,10 @@ Bellwethers in Heterogeneous Transfer Learning
 +        +        + #matches:  +
 |        |        | Bellwether |
 +--------+--------+------------+
-| AEEEM  | Apache | 9          |
-+--------+--------+------------+
-|        | NASA   | 3*         |
-+--------+--------+------------+
+|        | Apache | 9          |
++        +--------+------------+
+|  AEEEM | NASA   | 3*         |
++        +--------+------------+
 |        | ReLink | 12         |
 +--------+--------+------------+
 | Apache | AEEEM  | 6          |
