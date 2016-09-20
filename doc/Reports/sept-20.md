@@ -1,5 +1,10 @@
 Bellwethers in Heterogeneous Transfer Learning
 -----
+
+![image](https://cloud.githubusercontent.com/assets/1433964/18680294/1a4d9bf0-7f31-11e6-9e30-64877d19ea74.png)
+![image](https://cloud.githubusercontent.com/assets/1433964/18680297/1db7e868-7f31-11e6-8431-c6a6df3d9dbe.png)
+
+
 + Tried using GENERATE--APPLY--MONITOR on HDP data sets. 
     - No distinguishable bellwether found.
     - No rows/columns with consistently high performance scores.
