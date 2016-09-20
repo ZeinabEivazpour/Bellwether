@@ -24,7 +24,7 @@ def weightedBipartite(matches):
     t_tag = "_t"
     G = nx.Graph()
     for key, val in matches.iteritems():
-        G.add_edge(key[0] + "_s", key[1] + "_t", weight=val)  # add suffix to make it unique
+        G.add_edge(key[0] + s_tag, key[1] + t_tag, weight=val)  # add suffix to make it unique
     result = nx.max_weight_matching(G)
 
     """
@@ -32,8 +32,7 @@ def weightedBipartite(matches):
     i.e., only (S->T) or only (T->S)
     """
 
-    for attr_1, attr_2 in result.iteritems():
-
+    # for attr_1, attr_2 in result.iteritems():
     return result
 
 

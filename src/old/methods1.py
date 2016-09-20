@@ -6,7 +6,7 @@ from os.path import expanduser
 
 # Update PYTHONPATH
 HOME = expanduser('~')
-axe = HOME + '/git/axe/axe/'  # AXE
+axe = HOME + '/git/rahlk/axe/axe/'  # AXE
 pystat = HOME + '/git/pystats/'  # PySTAT
 cwd = getcwd()  # Current Directory
 sys.path.extend([axe, pystat, './where2'])
