@@ -1,5 +1,6 @@
 from __future__ import division
 
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from random import shuffle
 from methods1 import *
@@ -19,7 +20,6 @@ def formatData(tbl, picksome=False, addsome=None):
         for i in xrange(int(len(Rows)*0.1)):
             some.append(Rows.pop())
     headers = [i.name for i in tbl.headers]
-
     if addsome:
         Rows.extend(addsome)
 
@@ -61,6 +61,32 @@ def rforest(train, test, tunings=None, picksome=False):
     else:
         train_DF = formatData(train, False, None)
         test_DF = formatData(test, False, None)
+
+    features = train_DF.columns[:-2]
+    klass = train_DF[train_DF.columns[-2]]
+    clf.fit(train_DF[features], klass)
+    preds = clf.predict(test_DF[test_DF.columns[:-2]])
+    return preds
+
+def logistic_regression(train, test, tunings=None, picksome=False):
+    """ Logistic Regression
+
+    :param train:   Thing object created using function createTbl
+    :param test:    Thing object created using function createTbl
+    :param tunings: List of tunings obtained from Differential Evolution
+                    tunings=[n_estimators, max_features, min_samples_leaf, min_samples_split]
+    :return preds: Predicted bugs
+    """
+
+    assert type(train) is Thing, "Train is not a Thing object"
+    assert type(test) is Thing, "Test is not a Thing object"
+    train = SMOTE(train, atleast=50, atmost=101, resample=True)
+    if not tunings:
+        clf = LogisticRegression()
+
+    train_DF = formatData(train, False, None)
+    test_DF = formatData(test, False, None)
+
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)

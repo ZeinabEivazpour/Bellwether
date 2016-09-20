@@ -10,7 +10,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 
-def weightedBipartite(matches):
+def weightedBipartite(matches, source, target):
     """
     Weighted Bipartite Matching Filter.
     Adapted from @WeiFoo's HDP codebase. See https://goo.gl/3AN2Qd.
@@ -31,9 +31,15 @@ def weightedBipartite(matches):
     We only want matched pairs with (S->T) and (T<-S). Remove singletons;
     i.e., only (S->T) or only (T->S)
     """
-
-    # for attr_1, attr_2 in result.iteritems():
-    return result
+    pairs = []
+    for attr_1, attr_2 in result.iteritems():
+        if attr_1[:-2] in source and attr_2[:-2] in target:
+            if (attr_1[:-2], attr_2[:-2]) not in pairs:
+                pairs.append((attr_1[:-2], attr_2[:-2]))
+        elif attr_1[:-2] in target and attr_2[:-2] in source:
+            if (attr_2[:-2], attr_1[:-2]) not in pairs:
+                pairs.append((attr_2[:-2], attr_1[:-2]))
+    return pairs
 
 
 def _test__weightedBipartite():

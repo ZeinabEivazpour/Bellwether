@@ -45,20 +45,22 @@ def formatData(tbl, picksome=False, addsome=None):
         return pd.DataFrame(Rows, columns=headers)
 
 
-def pairs(s, t):
+def pretty(an_item):
+    import pprint
+    p = pprint.PrettyPrinter(indent=2)
+    p.pprint(an_item)
+
+
+def pairs(D):
     """
-    Takes 2 data sets A and B, returns all possible pairs of columns.
-    :param a: First dataset, M columns.
-    :param b: Second dataset, N columns.
-    :return: a generator with pairs (m,n) (m,n -> M,N)
+    Returns pairs of (key, values).
+    :param D: Dictionary
+    :return:
     """
+    keys = D.keys()
+    last = keys[0]
+    for i in keys[1:]:
+        yield D[last], D[i]
+        last = i
 
-    col_s, col_t = s.columns, t.columns
-    for one in col_t:
-        for two in col_s:
-            yield two, one
 
-
-class PrettyPrint(object):
-    def __init__(self, header=[]):
-        self.header = header

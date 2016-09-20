@@ -27,10 +27,11 @@ class _Data:
         data = explore(dir)
         for d in data:
             if dataName in d[0]:
-                self.data = createTbl(d, isBin=True)
+                self.data = d
 
 
 class NASA:
+    "NASA"
     def __init__(self):
         self.projects = {}
         for file in ["cm", "jm", "kc", "mc", "mw"]:
@@ -38,6 +39,7 @@ class NASA:
 
 
 class Jureczko:
+    "Apache"
     def __init__(self):
         self.projects = {}
         for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
@@ -46,6 +48,7 @@ class Jureczko:
 
 
 class AEEEM:
+    "AEEEM"
     def __init__(self):
         self.projects = {}
         for file in ["EQ", "JDT", "LC", "ML", "PDE"]:
@@ -53,11 +56,17 @@ class AEEEM:
 
 
 class ReLink:
+    "RELINK"
     def __init__(self):
         self.projects = {}
         for file in ["Apache", "Safe", "Zxing"]:
             self.projects.update({file: _Data(dataName=file, type='relink')})
 
+def get_all_projects():
+    all = dict()
+    for community in [AEEEM, Jureczko, AEEEM, ReLink, NASA]:
+        all.update({community.__doc__: community().projects})
+    return all
 
 def _test():
     data = NASA()

@@ -33,8 +33,11 @@ def KSAnalyzer(source, target, cutoff=0.05):
     }
 
     """
-    source = source[source.columns[3:-1]]  # Refactor!
-    target = target[target.columns[3:-1]]  # Refactor!
+    # set_trace()
+    s_col = [col for col in source.columns[:-1] if not '?' in col]
+    t_col = [col for col in target.columns[:-1] if not '?' in col]
+    source = source[s_col]  # Refactor!
+    target = target[t_col]  # Refactor!
     matches = dict()
 
     for col_name_src in source:
