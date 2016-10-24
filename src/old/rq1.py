@@ -19,15 +19,15 @@ class data:
 
     def __init__(self, dataName='ant', type='jur'):
         if type == 'jur':
-            dir = "./data/Jureczko"
+            dir = "./Data/Jureczko"
         elif type == 'nasa':
-            dir = "./data/mccabe"
+            dir = "./Data/mccabe"
         elif type == 'aeeem':
-            dir = "./data/AEEEM"
+            dir = "./Data/AEEEM"
         elif type == "relink":
-            dir = './data/Relink'
+            dir = './Data/Relink'
         elif type == 'other':
-            dir = './data/other/'
+            dir = './Data/other/'
         try:
             projects = [Name for _, Name, __ in walk(dir)][0]
         except:
@@ -186,7 +186,7 @@ def relink():
 
 def other():
     print("Other\n------\n```")
-    files = [x[0].split('/')[-1] for x in walk('data/other/')][1:]
+    files = [x[0].split('/')[-1] for x in walk('Data/other/')][1:]
     for file in files:
         print('### ' + file)
         simulate(file, type='other', tune=False).bellwether()
@@ -195,7 +195,7 @@ def other():
 
 if __name__ == "__main__":
     logo()  # Print logo
-    other()
+    # other()
     # nasa()
     jur()
     # aeeem()

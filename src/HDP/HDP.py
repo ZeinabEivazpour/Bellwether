@@ -11,7 +11,7 @@ from old.Prediction import rforest
 from data.handler import get_all_projects
 from matching.match_metrics import match_metrics, list2dataframe
 from pdb import set_trace
-from prediction.model import rf_model, logistic_model
+from prediction.model import rf_model
 from old.methods1 import createTbl
 from old.stats import ABCD
 import pickle
@@ -32,7 +32,6 @@ class HDP:
                 return key, value
 
     def matching(self, bellwether=False):
-        # source_bw = self.bellwether(self.source)
         all_matches = {
             "Source": {
                 "name": [],
@@ -42,8 +41,6 @@ class HDP:
                 "name": [],
                 "path": []
             }
-            # ,
-            # "Matches": []
         }
         bw_matches = []
 
@@ -86,15 +83,11 @@ class HDP:
                     trainCol.append(col[0])
                     testCol.append(col[1])
 
-            # for col in match:
-            # trainCol.append(col[0])
-            # testCol.append(col[1])
-            # set_trace()
-
             train = train[trainCol + [train_klass]]
             test = test[testCol + [test_klass]]
             actual = test[test.columns[-1]].values.tolist()
-            predicted = logistic_model(train, test)
+
+            predicted = rf_model(train, test, name=t_name)
             p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
             print("| Val: ", p_buggy[1].stats()[-1])
             yield t_name, p_buggy[1].stats()[-1]
@@ -109,19 +102,26 @@ def load(name):
 
 
 def run_hdp():
-    all = get_all_projects()
-    result = {}
-    for k, v in all.iteritems():
+    """
+    This method performs HDP.
+    :return:
+    """
+    all = get_all_projects()  # Get a dictionary of all projects and their respective files.
+    result = {}  # Store results here
+
+    for _, v in all.iteritems():
+        # Create a template for results.
         for kk in v.keys():
             result.update({kk: []})
 
-    for key_s, value_s in all.iteritems():
-        for key_t, value_t in all.iteritems():
-            if not key_s == key_t:
+    for key_s, value_s in all.iteritems():  # <key/value>_s denotes source
+        for key_t, value_t in all.iteritems():  # <key/value>_s denotes target
+            if not key_s == key_t:  # Ignore cases where source=target
                 print("Source: {}, Target: {}".format(key_s, key_t))
-                # HDP(value_s, value_t).process()
-                for name, auc in HDP(value_s, value_t).process():
+                hdp_runner = HDP(value_s, value_t)
+                for name, auc in hdp_runner.process():
                     result[name].append(auc)
+
     save(result)
 
 

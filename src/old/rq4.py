@@ -13,15 +13,15 @@ class data:
 
     def __init__(self, dataName='ant', type='jur'):
         if type == 'jur':
-            dir = "./data/Jureczko"
+            dir = "./Data/Jureczko"
         elif type == 'nasa':
-            dir = "./data/mccabe"
+            dir = "./Data/mccabe"
         elif type == 'aeeem':
-            dir = "./data/AEEEM"
+            dir = "./Data/AEEEM"
         elif type == "relink":
-            dir = './data/Relink'
+            dir = './Data/Relink'
         elif type ==  "barak":
-            dir = "./data/Turhan09"
+            dir = "./Data/Turhan09"
             projects = [Name for _, __, Name in walk(dir)][0]
             self.train = [dir+'/'+a for a in projects if dataName in a]
             return
@@ -89,16 +89,16 @@ class simulate:
     def bellwether(self):
 
         if self.type == 'jur':
-            dir = 'data/Jureczko/'
+            dir = 'Data/Jureczko/'
             pos = 5
         elif self.type == 'mccabe':
-            dir = 'data/mccabe/'
+            dir = 'Data/mccabe/'
             pos = -2
         elif self.type == 'aeeem':
-            dir = 'data/AEEEM/'
+            dir = 'Data/AEEEM/'
             pos = -3
         elif self.type == 'relink':
-            dir = 'data/Relink/'
+            dir = 'Data/Relink/'
             pos = -2
 
         try:

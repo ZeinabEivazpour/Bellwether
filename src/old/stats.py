@@ -21,21 +21,14 @@ class Counter:
                 pass
 
     def stats(self):
-        # try:
-            Sen = self.TP / (self.TP + self.FN)
-            Spec = self.TN / (self.TN + self.FP)
-            # Prec = self.TP / (self.TP + self.FP)
-            # Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
-            # F = 2 * (Prec * Sen) / (Prec + Sen)
-            # G = 2 * Sen * Spec / (Sen + Spec)
-            # F1 = 2 * self.TP / (2 * self.TP + self.FP + self.FN)
-            # G1 = Sen * Spec / (Sen + Spec)
-            ED = np.sqrt(0.6*(1-Sen)**2+0.3*(1-Spec)**2)
-            # set_trace()
-            return Sen, 1-Spec, ED, ED, ED, ED, ED
-            # return Sen, 1-Spec, Prec, Acc, F, G, ED
-        # except ZeroDivisionError:
-        #     return 0, 0, 0, 0, 0, 0
+        Sen = self.TP / (self.TP + self.FN)
+        Spec = self.TN / (self.TN + self.FP)
+        Prec = self.TP / (self.TP + self.FP)
+        Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
+        F = 2 * (Prec * Sen) / (Prec + Sen)
+        G = 2 * Sen * Spec / (Sen + Spec)
+        ED = np.sqrt(0.6*(1-Sen)**2+0.3*(1-Spec)**2)
+        return Sen, 1-Spec, Prec, Acc, F, G, ED
 
 
 class ABCD:

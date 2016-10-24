@@ -1,13 +1,19 @@
 #! /Users/rkrsn/anaconda/bin/python
 import sys
+import os
 from os import getcwd
 from os import walk
 from os.path import expanduser
 
 # Update PYTHONPATH
+root = os.path.join(os.getcwd().split('src')[0], 'src')
+if root not in sys.path:
+    sys.path.append(root)
+
+from pdb import set_trace
 HOME = expanduser('~')
-axe = HOME + '/git/rahlk/axe/axe/'  # AXE
-pystat = HOME + '/git/pystats/'  # PySTAT
+axe = root + '/lib/axe/axe/'  # AXE
+pystat = root + '/lib/pystats/'  # PySTAT
 cwd = getcwd()  # Current Directory
 sys.path.extend([axe, pystat, './where2'])
 from dtree import *
@@ -90,7 +96,7 @@ def createTbl(
 
 
 def test_createTbl():
-    dir = '../data/camel/camel-1.6.csv'
+    dir = '../Data/camel/camel-1.6.csv'
     newTbl = createTbl([dir], _smote=False)
     newTblSMOTE = createTbl([dir], _smote=True)
     print(len(newTbl._rows), len(newTblSMOTE._rows))
