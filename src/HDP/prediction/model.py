@@ -2,6 +2,7 @@ from __future__ import division
 import os
 import sys
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
 root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
@@ -18,13 +19,21 @@ def getTunings(fname):
 
 
 def df2thing(dframe):
-    from glob import glob
-    if len(glob('temp.csv')): os.remove('temp.csv')
     dframe.to_csv('temp.csv', index=False)
-    return createTbl(['temp.csv'], isBin=True)
+    new_thing = createTbl(['temp.csv'], isBin=True)
+    os.remove('temp.csv')
+    return new_thing
 
 
 def rf_model(source, target, name):
+    clf = RandomForestClassifier(n_estimators=100, random_state=1)
+    features = source.columns[:-1]
+    klass = source[source.columns[-1]]
+    clf.fit(source[features], klass)
+    preds = clf.predict(target[target.columns[:-1]])
+    return preds
+
+def rf_model0(source, target, name):
     train = df2thing(source)
     test = df2thing(target)
     return rforest(train, test, tunings=getTunings(name))

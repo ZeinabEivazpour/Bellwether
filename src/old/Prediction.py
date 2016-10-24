@@ -1,7 +1,7 @@
 from __future__ import division
 
 from sklearn.ensemble import RandomForestClassifier
-from random import shuffle
+from random import randint, shuffle
 from methods1 import *
 from smote import *
 
@@ -18,15 +18,15 @@ def formatData(tbl, picksome=False, addsome=None):
         shuffle(Rows)
         for i in xrange(int(len(Rows)*0.1)):
             some.append(Rows.pop())
-    headers = [i.name for i in tbl.headers]
+    headers = [i.name+"_"+str(randint(0,10000)) for i in tbl.headers]
 
     if addsome:
         Rows.extend(addsome)
 
     if picksome:
-        return pd.DataFrame(Rows, columns=headers), some
+        return pd.DataFrame(Rows), some
     else:
-        return pd.DataFrame(Rows, columns=headers)
+        return pd.DataFrame(Rows)
 
 
 def Bugs(tbl):
@@ -64,7 +64,11 @@ def rforest(train, test, tunings=None, picksome=False):
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)
-    preds = clf.predict(test_DF[test_DF.columns[:-2]])
+    try:
+        preds = clf.predict(test_DF[test_DF.columns[:-2]])
+    except:
+        set_trace()
+
     return preds
 
 

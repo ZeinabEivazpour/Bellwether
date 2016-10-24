@@ -44,14 +44,17 @@ class HDP:
         }
         bw_matches = []
 
-        for tgt_name, tgt_path in self.target.iteritems():
-            src_name, src_path = self.known_bellwether(self.source)
-            matched = match_metrics(src_path, tgt_path)
-            if matched:
-                bw_matches.extend(matched)
+        # for tgt_name, tgt_path in self.target.iteritems():
+        tgt_name, tgt_path = self.known_bellwether(self.target)
+        src_name, src_path = self.known_bellwether(self.source)
+        matched = match_metrics(src_path, tgt_path)
+        if matched:
+            bw_matches.extend(matched)
         bw_matches = list(set(bw_matches))
 
-        # print(len(bw_matches))
+        print("S: {} | T: {} | {}".format(src_name, tgt_name, len(bw_matches)))
+
+        # set_trace()
 
         for tgt_name, tgt_path in self.target.iteritems():
             for src_name, src_path in self.source.iteritems():
@@ -76,13 +79,18 @@ class HDP:
             test = list2dataframe(t_path.data)
             train_klass = train.columns[-1]
             test_klass = test.columns[-1]
-            trainCol, testCol = [], []
+            trainCol = [col[0] for col in bw_matches]
+            testCol = [col[1] for col in bw_matches]
 
-            for col in bw_matches:
-                if not col[0] in trainCol and not col[1] in testCol:
-                    trainCol.append(col[0])
-                    testCol.append(col[1])
+            # set_trace()
+            #
+            # for col in bw_matches:
+            #     if not col[0] in trainCol:
+            #         trainCol.append(col[0])
+            #     # if not col[1] in testCol:
+            #         testCol.append(col[1])
 
+            # set_trace()
             train = train[trainCol + [train_klass]]
             test = test[testCol + [test_klass]]
             actual = test[test.columns[-1]].values.tolist()
@@ -106,16 +114,16 @@ def run_hdp():
     This method performs HDP.
     :return:
     """
-    all = get_all_projects()  # Get a dictionary of all projects and their respective files.
+    all_projects = get_all_projects()  # Get a dictionary of all projects and their respective files.
     result = {}  # Store results here
 
-    for _, v in all.iteritems():
+    for _, v in all_projects.iteritems():
         # Create a template for results.
         for kk in v.keys():
             result.update({kk: []})
 
-    for key_s, value_s in all.iteritems():  # <key/value>_s denotes source
-        for key_t, value_t in all.iteritems():  # <key/value>_s denotes target
+    for key_s, value_s in all_projects.iteritems():  # <key/value>_s denotes source
+        for key_t, value_t in all_projects.iteritems():  # <key/value>_s denotes target
             if not key_s == key_t:  # Ignore cases where source=target
                 print("Source: {}, Target: {}".format(key_s, key_t))
                 hdp_runner = HDP(value_s, value_t)

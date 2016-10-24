@@ -9,7 +9,6 @@ from pdb import set_trace
 import pandas as pd
 from utils import *
 from scipy.stats import ks_2samp
-import networkx as nx
 
 
 def KSAnalyzer(source, target, cutoff=0.05):
@@ -33,11 +32,10 @@ def KSAnalyzer(source, target, cutoff=0.05):
     }
 
     """
-    # set_trace()
     s_col = [col for col in source.columns[:-1] if not '?' in col]
     t_col = [col for col in target.columns[:-1] if not '?' in col]
-    source = source[s_col]  # Refactor!
-    target = target[t_col]  # Refactor!
+    source = df_norm(source[s_col]) # Refactor!
+    target = df_norm(target[t_col]) # Refactor!
     matches = dict()
 
     for col_name_src in source:

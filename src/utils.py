@@ -9,6 +9,11 @@ if __root__ not in sys.path:
     sys.path.append(__root__)
 
 
+def df_norm(dframe):
+    """ Normalize a dataframe"""
+    return (dframe - dframe.min()) / (dframe.max() - dframe.min())
+
+
 def explore(dir):
     datasets = []
     for (dirpath, dirnames, filenames) in os.walk(dir):
@@ -62,5 +67,3 @@ def pairs(D):
     for i in keys[1:]:
         yield D[last], D[i]
         last = i
-
-
