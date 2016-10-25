@@ -122,8 +122,8 @@ def seer0(source, target):
     """
     for tgt_name, tgt_path in target.iteritems():
         PD, PF, ED = [], [], []
+        print("Target Project: {}\n".format(tgt_name), end="```\n")
         for src_name, src_path in source.iteritems():
-            print("Target: {}|Source: {}\n".format(tgt_name, src_name), end="\n")
             src = list2dataframe(src_path.data)
             tgt = list2dataframe(tgt_path.data)
             pd, pf, ed = [src_name], [src_name], [src_name]
@@ -157,6 +157,7 @@ def seer0(source, target):
             PF.append(pf)
             ED.append(ed)
         rdivDemo(ED, isLatex=False)
+        print('```')
 
 
 def execute():
@@ -170,6 +171,7 @@ def execute():
     for target in all_projects.keys():
         for source in all_projects.keys():
             if not source == target:
+                print("Target Community: {} | Source Community: {}".format(target, source))
                 seer0(all_projects[source], all_projects[target])
 
 
