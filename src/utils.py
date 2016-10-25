@@ -9,9 +9,28 @@ if __root__ not in sys.path:
     sys.path.append(__root__)
 
 
+def list2dataframe(lst):
+    data = [pd.read_csv(elem) for elem in lst]
+    return pd.concat(data, ignore_index=True)
+
+
+def flatten(x):
+    """
+    Takes an N times nested list of list like [[a,b],[c, [d, e]],[f]]
+    and returns a single list [a,b,c,d,e,f]
+    """
+    result = []
+    for el in x:
+        if hasattr(el, "__iter__") and not isinstance(el, basestring):
+            result.extend(flatten(el))
+        else:
+            result.append(el)
+    return result
+
+
 def df_norm(dframe):
     """ Normalize a dataframe"""
-    return (dframe - dframe.min()) / (dframe.max() - dframe.min())
+    return (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
 
 
 def explore(dir):

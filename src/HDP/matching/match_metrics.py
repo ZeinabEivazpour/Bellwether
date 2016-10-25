@@ -16,4 +16,8 @@ def match_metrics(source, target):
     source = list2dataframe(source.data)
     target = list2dataframe(target.data)
     matches = KSAnalyzer(source, target, cutoff=0.05)
-    return weightedBipartite(matches, source=source.columns, target=target.columns)
+    wbp = weightedBipartite(matches, source=source.columns, target=target.columns)
+    if len(wbp)>0:
+        return wbp
+    else:
+        return None

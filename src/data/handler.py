@@ -44,7 +44,7 @@ class Jureczko:
         self.projects = {}
         for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                      'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
-            self.projects.update({file: _Data(dataName=file, type='jur')})
+             self.projects.update({file: _Data(dataName=file, type='jur')})
 
 
 class AEEEM:

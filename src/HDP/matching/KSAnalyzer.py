@@ -37,12 +37,15 @@ def KSAnalyzer(source, target, cutoff=0.05):
     source = df_norm(source[s_col]) # Refactor!
     target = df_norm(target[t_col]) # Refactor!
     matches = dict()
+    # set_trace()
 
     for col_name_src in source:
         # matches.update({col_name_src: []})
         for col_name_tgt in target:
-            _, p_val = ks_2samp(source[col_name_src],
-                                target[col_name_tgt])
+            try:
+                _, p_val = ks_2samp(source[col_name_src],
+                                    target[col_name_tgt])
+            except: set_trace()
             if p_val > cutoff:
                 matches.update({(col_name_src, col_name_tgt): p_val})
 
