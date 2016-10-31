@@ -8,7 +8,7 @@ from scipy.spatial.distance import euclidean
 from sklearn.neighbors import BallTree
 
 
-def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
+def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
     """
     Synthetic Minority Oversampling Technique
     """

@@ -7,13 +7,10 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-# Unused?
 from data.handler import get_all_projects
-from old.sk import rdivDemo
-from pdb import set_trace
-
 from prediction.model import rf_model
 from old.stats import ABCD
+from old.sk import rdivDemo
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from numpy.random import choice
@@ -91,7 +88,7 @@ def metrics_match(src, tgt):
     for t_metric in t_col:
         hi = -1e32
         for s_metric in s_col:
-            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(20)])
+            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(3)])
             if value > hi:
                 selected_col.update({t_metric: (s_metric, value)})
                 hi = value
@@ -116,53 +113,75 @@ def predict_defects(train, test):
     return actual, predicted
 
 
-def seer(source, target):
+def seer0(source, target):
     """
-    seer: Causal Inference Learning
+    seer0: Causal Inference Learning
     :param source:
     :param target:
-    :return: result: A dictionary of estimated
+    :return:
     """
-    result = dict()
     for tgt_name, tgt_path in target.iteritems():
         PD, PF, ED = [], [], []
-        result.update({tgt_name: []})
-        # print("Target Project: {}\n".format(tgt_name), end="```\n")
+        print("Target Project: {}\n".format(tgt_name), end="```\n")
         for src_name, src_path in source.iteritems():
-            src = list2dataframe(src_path.data)
-            tgt = list2dataframe(tgt_path.data)
-            pd, pf, ed = [src_name], [src_name], [src_name]
-            for n in xrange(4):
+            if not src_name == tgt_name:
+                src = list2dataframe(src_path.data)
+                tgt = list2dataframe(tgt_path.data)
+                pd, pf, ed = [src_name], [src_name], [src_name]
+                for n in xrange(1):
 
-                matched_src = metrics_match(src, tgt)
+                    matched_src = metrics_match(src, tgt)
 
-                target_columns = []
-                source_columns = []
+                    target_columns = []
+                    source_columns = []
 
-                all_columns = [(key, val[0], val[1]) for key, val in matched_src.iteritems() if val[1] > 1]
-                all_columns = sorted(all_columns, key=lambda x: x[-1])[::-1]  # Sort descending
+                    all_columns = [(key, val[0], val[1]) for key, val in matched_src.iteritems() if val[1] > 1]
+                    all_columns = sorted(all_columns, key=lambda x: x[-1])[::-1]  # Sort descending
 
-                # Filter all columns to remove dupes
-                for elem in all_columns:
-                    if not elem[1] in source_columns:
-                        target_columns.append(elem[0])
-                        source_columns.append(elem[1])
+                    # Filter all columns to remove dupes
+                    for elem in all_columns:
+                        if not elem[1] in source_columns:
+                            target_columns.append(elem[0])
+                            source_columns.append(elem[1])
 
-                _train = df_norm(src[source_columns + [src.columns[-1]]])
-                __test = df_norm(tgt[target_columns + [tgt.columns[-1]]])
+                    _train = df_norm(src[source_columns + [src.columns[-1]]])
+                    __test = df_norm(tgt[target_columns + [tgt.columns[-1]]])
 
-                actual, predicted = predict_defects(train=_train, test=__test)
-                p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
-                pd.append(p_buggy[1].stats()[0])
-                pf.append(p_buggy[1].stats()[1])
-                ed.append(p_buggy[1].stats()[-1])
+                    actual, predicted = predict_defects(train=_train, test=__test)
+                    p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
+                    pd.append(p_buggy[1].stats()[0])
+                    pf.append(p_buggy[1].stats()[1])
+                    ed.append(p_buggy[1].stats()[-1])
 
-            PD.append(pd)
-            PF.append(pf)
-            ED.append(ed)
-            # set_trace()
-        # rdivDemo(ED, isLatex=False)
-        # print('```')
-        result[tgt_name].append((PD, PF))
+                PD.append(pd)
+                PF.append(pf)
+                ED.append(ed)
+                # set_trace()
+        rdivDemo(ED, isLatex=False)
+        print('```')
 
-    return result
+
+def execute():
+    """
+    This method performs HDP.
+    :return:
+    """
+    all_projects = get_all_projects()  # Get a dictionary of all projects and their respective pathnames.
+    result = {}  # Store results here
+
+    for target in all_projects.keys():
+        for source in all_projects.keys():
+            if source == target:  # This ensures transfer happens within community
+                print("Target Community: {} | Source Community: {}".format(target, source))
+                seer0(all_projects[source], all_projects[target])
+
+
+def __test_seer():
+    """
+    A test case goes here.
+    :return:
+    """
+
+
+if __name__ == "__main__":
+    execute()
