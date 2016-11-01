@@ -3,6 +3,10 @@ import os
 import sys
 from random import shuffle
 import pandas as pd
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 __root__ = os.path.join(os.getcwd().split('HDP')[0], 'HDP')
 if __root__ not in sys.path:
@@ -13,6 +17,13 @@ def list2dataframe(lst):
     data = [pd.read_csv(elem) for elem in lst]
     return pd.concat(data, ignore_index=True)
 
+
+def brew_pickle(data, dir='.', fname='data'):
+    with open('{}/{}.p'.format(dir, fname), 'wb') as fp:
+        pickle.dump(data, fp)
+
+def load_pickle(dir='.', fname='data'):
+    pass
 
 def flatten(x):
     """
@@ -28,9 +39,12 @@ def flatten(x):
     return result
 
 
-def df_norm(dframe):
+def df_norm(dframe, type="min_max"):
     """ Normalize a dataframe"""
-    return (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
+    if type == "min_max":
+        return (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
+    if type == "normal":
+        return (dframe - dframe.mean()) / dframe.std()
 
 
 def explore(dir):

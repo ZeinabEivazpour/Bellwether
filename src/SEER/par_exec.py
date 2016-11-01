@@ -1,3 +1,6 @@
+"""
+Execute SEER on all cores
+"""
 from __future__ import print_function, division
 
 import os

@@ -91,7 +91,7 @@ def metrics_match(src, tgt):
     for t_metric in t_col:
         hi = -1e32
         for s_metric in s_col:
-            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(20)])
+            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(1)])
             if value > hi:
                 selected_col.update({t_metric: (s_metric, value)})
                 hi = value
@@ -132,7 +132,7 @@ def seer(source, target):
             src = list2dataframe(src_path.data)
             tgt = list2dataframe(tgt_path.data)
             pd, pf, ed = [src_name], [src_name], [src_name]
-            for n in xrange(4):
+            for n in xrange(1):
 
                 matched_src = metrics_match(src, tgt)
 
