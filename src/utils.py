@@ -3,10 +3,13 @@ import os
 import sys
 from random import shuffle
 import pandas as pd
+
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
+
+import json
 
 __root__ = os.path.join(os.getcwd().split('HDP')[0], 'HDP')
 if __root__ not in sys.path:
@@ -18,12 +21,19 @@ def list2dataframe(lst):
     return pd.concat(data, ignore_index=True)
 
 
+def dump_json(result, dir='.', fname='data'):
+    with open('{}/{}.json'.format(dir, fname), 'w+') as fp:
+        json.dump(result, fp)
+
+
 def brew_pickle(data, dir='.', fname='data'):
-    with open('{}/{}.p'.format(dir, fname), 'wb') as fp:
+    with open('{}/{}.p'.format(dir, fname), 'w+') as fp:
         pickle.dump(data, fp)
+
 
 def load_pickle(path):
     return pickle.load(open(path, 'rb'))
+
 
 def flatten(x):
     """
