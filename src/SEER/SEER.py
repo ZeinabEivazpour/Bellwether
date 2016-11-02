@@ -17,8 +17,10 @@ from matching.bahsic.hsic import CHSIC
 from sklearn.decomposition import TruncatedSVD as KernelSVD
 from utils import *
 from pdb import set_trace
+from time import time
 
-## God Damn warnings: STFU!!
+
+## Shut those god damn warnings up!
 import warnings
 
 with warnings.catch_warnings():
@@ -135,14 +137,14 @@ def cause_effect(x, y):
     return abs(c_xy - c_yx) if c_xy < c_yx else 0
 
 
-def metrics_match(src, tgt):
+def metrics_match(src, tgt, n_redo):
     s_col = [col for col in src.columns[:-1] if not '?' in col]
     t_col = [col for col in tgt.columns[:-1] if not '?' in col]
     selected_col = dict()
     for t_metric in t_col:
         hi = -1e32
         for s_metric in s_col:
-            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(1)])
+            value = np.median([cause_effect(src[s_metric], tgt[t_metric]) for _ in xrange(n_redo)])
             if value > hi:
                 selected_col.update({t_metric: (s_metric, value)})
                 hi = value
@@ -167,7 +169,7 @@ def predict_defects(train, test):
     return actual, predicted
 
 
-def seer(source, target):
+def seer(source, target, n_rep=1, n_redo=1):
     """
     seer: Causal Inference Learning
     :param source:
@@ -175,16 +177,18 @@ def seer(source, target):
     :return: result: A dictionary of estimated
     """
     result = dict()
+    t0 = time()
     for tgt_name, tgt_path in target.iteritems():
+        t1 = time()
         PD, PF, ED = [], [], []
         result.update({tgt_name: []})
-        # print("Target Project: {}\n".format(tgt_name), end="```\n")
         for src_name, src_path in source.iteritems():
+            t2 = time()
             src = list2dataframe(src_path.data)
             tgt = list2dataframe(tgt_path.data)
             pd, pf, ed = [src_name], [src_name], [src_name]
-            matched_src = metrics_match(src, tgt)
-            for n in xrange(10):
+            matched_src = metrics_match(src, tgt, n_redo)
+            for n in xrange(n_rep):
 
                 target_columns = []
                 source_columns = []
@@ -209,13 +213,13 @@ def seer(source, target):
                 pd.append(p_buggy[1].stats()[0])
                 pf.append(p_buggy[1].stats()[1])
                 ed.append(p_buggy[1].stats()[-1])
-
+                print("Time per source: {0:.2f}s".format(time()-t0))
             PD.append(pd)
             PF.append(pf)
             ED.append(ed)
-            # set_trace()
-        # rdivDemo(ED, isLatex=False)
-        # print('```')
+
+        print("Time per target: {0:.2f}s".format(time()-t1))
         result[tgt_name].append((PD, PF))
-        # set_trace()
+    
+    print("Time per target: {0:.2f}s".format(time()-t1))
     return result
