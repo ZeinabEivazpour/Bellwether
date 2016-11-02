@@ -22,8 +22,8 @@ def brew_pickle(data, dir='.', fname='data'):
     with open('{}/{}.p'.format(dir, fname), 'wb') as fp:
         pickle.dump(data, fp)
 
-def load_pickle(dir='.', fname='data'):
-    pass
+def load_pickle(path):
+    return pickle.load(open(path, 'rb'))
 
 def flatten(x):
     """

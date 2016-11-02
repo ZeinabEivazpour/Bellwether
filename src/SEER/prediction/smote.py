@@ -8,7 +8,7 @@ from scipy.spatial.distance import euclidean
 from sklearn.neighbors import BallTree
 
 
-def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
+def SMOTE(data=None, atleast=101, atmost=101, a=None, b=None, k=5):
     """
     Synthetic Minority Oversampling Technique
     """
@@ -74,9 +74,10 @@ def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
 
     major, minor = count.keys()
     for u in count.keys():
-        if u == minor:
-            newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
+        # if u == minor:
+            # newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
         if u == major:
+            pass
             newCells.extend(depopulate([r for r in data.as_matrix() if r[-1] == u]))
         else:
             newCells.extend([r.tolist() for r in data.as_matrix() if r[-1] == u])

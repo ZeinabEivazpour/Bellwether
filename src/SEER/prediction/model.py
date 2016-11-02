@@ -33,7 +33,8 @@ def rf_model(source, target):
     clf = RandomForestClassifier(n_estimators=100, random_state=1)
     # Binarize source
     # source.loc[source[source.columns[-1]] > 0, source.columns[-1]] = 1
-    source = SMOTE(source)
+    # set_trace()
+    # source = SMOTE(source)
     features = source.columns[:-1]
     klass = source[source.columns[-1]]
     clf.fit(source[features], klass)

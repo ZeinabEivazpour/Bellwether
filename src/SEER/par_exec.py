@@ -46,10 +46,10 @@ def execute(project_pairs):
     """
     source, target, count = project_pairs
     result = seer(source, target)
-    brew_pickle(result, dir='picklejar', fname=str(count))
+    brew_pickle(result, dir='pickles', fname=str(count))
 
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool()
+    pool = multiprocessing.Pool(processes=12)
     project_pairs = get_source_target()
     pool.map(execute, project_pairs)

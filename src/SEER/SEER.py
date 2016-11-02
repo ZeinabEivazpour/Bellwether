@@ -7,11 +7,6 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-# Unused?
-from data.handler import get_all_projects
-from old.sk import rdivDemo
-from pdb import set_trace
-
 from prediction.model import rf_model
 from old.stats import ABCD
 from sklearn.linear_model import LinearRegression
@@ -19,7 +14,63 @@ from sklearn.model_selection import train_test_split
 from numpy.random import choice
 import numpy as np
 from matching.bahsic.hsic import CHSIC
+from sklearn.decomposition import TruncatedSVD as KernelSVD
 from utils import *
+from pdb import set_trace
+
+## God Damn warnings: STFU!!
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+
+def get_kernel_matrix(dframe, n_components=5):
+    """
+    This returns a Kernel Transformation Matrix $\Theta$ -> This is basically a mapping using PCA-SVD
+    :param dframe: input data as a pandas dataframe.
+    :param n_dim: Number of dimensions for the kernel matrix
+    :return: $\Theta$ matrix
+    """
+    kernel = KernelSVD(n_components=5)
+    kernel.fit(dframe)
+    return kernel
+
+
+def map_transform(src, tgt, n_components=5):
+    """
+    Run a map and transform x and y onto a new space using TCA
+    :param src: IID samples
+    :param tgt: IID samples
+    :return: Mapped x and y
+    """
+    s_col = [col for col in src.columns[:-1] if '?' not in col]
+    t_col = [col for col in tgt.columns[:-1] if '?' not in col]
+    S = src[s_col]
+    S.columns = xrange(len(s_col))
+    T = tgt[t_col]
+    T.columns = xrange(len(t_col))
+
+    all = pd.concat([S, T])
+    N = int(min(len(S), len(T)))
+
+    "Make sure x0, y0 are the same size. Note: This is rerun multiple times."
+    if len(S) > len(T):
+        x0, y0 = S.sample(n=N), T
+    elif len(S) < len(T):
+        x0, y0 = S, T.sample(n=N)
+    else:
+        x0, y0 = S, T
+
+    mapper = get_kernel_matrix(all, n_components=5)
+
+    x0 = pd.DataFrame(mapper.transform(x0), columns=xrange(n_components))
+    y0 = pd.DataFrame(mapper.transform(y0), columns=xrange(n_components))
+
+    x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
+    y0.loc[:, tgt.columns[-1]] = pd.Series(src[src.columns[-1]], index=y0.index)
+
+    return x0, y0
 
 
 def cause_effect(x, y):
@@ -132,9 +183,8 @@ def seer(source, target):
             src = list2dataframe(src_path.data)
             tgt = list2dataframe(tgt_path.data)
             pd, pf, ed = [src_name], [src_name], [src_name]
-            for n in xrange(1):
-
-                matched_src = metrics_match(src, tgt)
+            matched_src = metrics_match(src, tgt)
+            for n in xrange(10):
 
                 target_columns = []
                 source_columns = []
@@ -148,8 +198,11 @@ def seer(source, target):
                         target_columns.append(elem[0])
                         source_columns.append(elem[1])
 
-                _train = df_norm(src[source_columns + [src.columns[-1]]])
-                __test = df_norm(tgt[target_columns + [tgt.columns[-1]]])
+                _train, __test = df_norm(src[source_columns + [src.columns[-1]]]), \
+                                 df_norm(tgt[target_columns + [tgt.columns[-1]]])
+
+                # _train, __test = map_transform(src[source_columns + [src.columns[-1]]],
+                #                          tgt[target_columns + [tgt.columns[-1]]])
 
                 actual, predicted = predict_defects(train=_train, test=__test)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
@@ -164,5 +217,5 @@ def seer(source, target):
         # rdivDemo(ED, isLatex=False)
         # print('```')
         result[tgt_name].append((PD, PF))
-
+        # set_trace()
     return result
