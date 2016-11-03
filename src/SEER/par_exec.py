@@ -45,7 +45,7 @@ def execute(project_pairs):
     :return:
     """
     source, target, count = project_pairs
-    result = seer(source, target, n_rep=1, n_redo=1)
+    result = seer(source, target, n_rep=20, n_redo=5)
     dump_json(result,  dir='pickles_downsamp', fname=str(count))
 
 
