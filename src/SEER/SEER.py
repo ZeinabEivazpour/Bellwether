@@ -222,5 +222,4 @@ def seer(source, target, n_rep=20, n_redo=5):
         result[tgt_name].append((PD, PF))
     
     print("Time per call: {0:.2f}s".format(time()-t0))
-    set_trace()
     return result

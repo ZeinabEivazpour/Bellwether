@@ -45,8 +45,9 @@ def execute(project_pairs):
     :return:
     """
     source, target, count = project_pairs
-    result = seer(source, target)
-    dump_json(result,  dir='pickles_downsamp', fname=str(count))
+    result = seer(source, target, n_rep=30, n_redo=10)
+    print(result)
+    dump_json(result,  dir='pickles', fname=str(count))
 
 
 if __name__ == "__main__":

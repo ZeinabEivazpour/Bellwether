@@ -34,7 +34,7 @@ def rf_model(source, target):
     # Binarize source
     # source.loc[source[source.columns[-1]] > 0, source.columns[-1]] = 1
     # set_trace()
-    source = SMOTE(source)
+    # source = SMOTE(source)
     features = source.columns[:-1]
     klass = source[source.columns[-1]]
     clf.fit(source[features], klass)
