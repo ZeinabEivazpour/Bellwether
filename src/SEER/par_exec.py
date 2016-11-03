@@ -46,8 +46,7 @@ def execute(project_pairs):
     """
     source, target, count = project_pairs
     result = seer(source, target)
-    dump_json(result)
-
+    dump_json(result,  dir='pickles_downsamp', fname=str(count))
 
 
 if __name__ == "__main__":
