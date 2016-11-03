@@ -213,14 +213,13 @@ def seer(source, target, n_rep=20, n_redo=5):
                 pd.append(p_buggy[1].stats()[0])
                 pf.append(p_buggy[1].stats()[1])
                 ed.append(p_buggy[1].stats()[-1])
-            print("Time per source (s: {0}): {1:.2f}s".format(src_name, time()-t2))
+            # print("Time per source (s: {0}): {1:.2f}s".format(src_name, time()-t2))
             PD.append(pd)
             PF.append(pf)
             ED.append(ed)
 
-        print("Time per target (t: {0}): {1:.2f}s".format(tgt_name, time()-t1))
+        # print("Time per target (t: {0}): {1:.2f}s".format(tgt_name, time()-t1))
         result[tgt_name].append((PD, PF))
     
-    print("Time per call: {0:.2f}s".format(time()-t0))
-    set_trace()
+    # print("Time per call: {0:.2f}s".format(time()-t0))
     return result
