@@ -186,7 +186,7 @@ def tca_plus(source, target):
                 PD.append(pd)
                 PF.append(pf)
                 ED.append(ed)
-                # set_trace()
+
         rdivDemo(ED, isLatex=False)
         # set_trace()
         print('```')
