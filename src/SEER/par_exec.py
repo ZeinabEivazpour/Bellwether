@@ -14,7 +14,7 @@ from data.handler import get_all_projects
 from SEER import seer
 import multiprocessing
 from pdb import set_trace
-from utils import brew_pickle
+from utils import brew_pickle, dump_json
 
 
 def get_source_target():
@@ -45,11 +45,11 @@ def execute(project_pairs):
     :return:
     """
     source, target, count = project_pairs
-    result = seer(source, target)
-    brew_pickle(result, dir='picklejar', fname=str(count))
+    result = seer(source, target, n_rep=1, n_redo=1)
+    dump_json(result,  dir='pickles_downsamp', fname=str(count))
 
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool()
+    pool = multiprocessing.Pool(processes=12)
     project_pairs = get_source_target()
     pool.map(execute, project_pairs)

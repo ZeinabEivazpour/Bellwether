@@ -8,9 +8,19 @@ from scipy.spatial.distance import euclidean
 from sklearn.neighbors import BallTree
 
 
-def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
+def SMOTE(data=None, atleast=101, atmost=101, k=5, type='Both'):
     """
     Synthetic Minority Oversampling Technique
+
+    :param data: A DataFrame of imbalanced data
+    :param atleast: Minimum number of minority class samples
+    :param atmost: Maximum number of majority class samples
+    :param k: Number of nearest neighbors
+    :param type: "Both": Under/oversample
+               , "under/down": Only downsample majority class
+               , "over/up": Only upsample minority class
+               , "none": Do nothing.
+    :return: A new balanced dataset.
     """
 
     def knn(a, b):
@@ -20,13 +30,6 @@ def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
         __, indx = tree.query(a[:-1], k=6)
 
         return [b[i] for i in indx]
-        # set_trace()
-        # return sorted(b, key=lambda F: euclidean(a[:-1], F[:-1]))
-
-    def kfn(me, my_lot, others):
-        "k farthest neighbors"
-        my_closest = None
-        return sorted(b, key=lambda F: euclidean(a[:-1], F[:-1]))
 
     def extrapolate(one, two):
         new = len(one) * [None]
@@ -37,12 +40,8 @@ def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
 
     def populate(data, atleast):
         newData = [dd.tolist() for dd in data]
-        if atleast - len(newData) < 0:
-            try:
-                return [choice(newData) for _ in xrange(atleast)]
-            except:
-                set_trace()
-        else:
+
+        if atleast - len(newData) > 0:
             for _ in xrange(atleast - len(newData)):
                 one = choice(data)
                 neigh = knn(one, data)[1:k + 1]
@@ -53,19 +52,7 @@ def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
                 newData.append(extrapolate(one, two))
             return newData
 
-    def populate2(data1, data2):
-        newData = []
-        for _ in xrange(atleast):
-            for one in data1:
-                neigh = kfn(one, data)[1:k + 1]
-                try:
-                    two = choice(neigh)
-                except IndexError:
-                    two = one
-                newData.append(extrapolate(one, two))
-        return [choice(newData) for _ in xrange(atleast)]
-
-    def depopulate(data):
+    def cull(data):
         return [choice(data).tolist() for _ in xrange(atmost)]
 
     newCells = []
@@ -74,13 +61,13 @@ def SMOTE(data=None, atleast=51, atmost=101, a=None, b=None, k=5):
 
     major, minor = count.keys()
     for u in count.keys():
-        if u == minor:
-            newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
+        # if u == minor:
+        # newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
         if u == major:
-            newCells.extend(depopulate([r for r in data.as_matrix() if r[-1] == u]))
+            newCells.extend(cull([r for r in data.as_matrix() if r[-1] == u]))
         else:
             newCells.extend([r.tolist() for r in data.as_matrix() if r[-1] == u])
-    # set_trace()
+
     return pd.DataFrame(newCells, columns=data.columns)
 
 
