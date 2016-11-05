@@ -15,19 +15,30 @@ from scipy.spatial.distance import euclidean
 from sklearn.decomposition import TruncatedSVD as KernelSVD
 from numpy.random import choice
 import numpy as np
-from old.sk import rdivDemo
-from old.stats import ABCD
+from stats.scott_knott import sk_chart
+from metrics.abcd import abcd
+from mklaren.kernel.kinterface import Kinterface
+from mklaren.kernel.kernel import *
+from mklaren.projection.nystrom import Nystrom
 
-def get_kernel_matrix(dframe, n_components=5):
+
+def get_kernel_matrix(dframe, n_dim=15):
     """
-    This returns a Kernel Transformation Matrix $\Theta$ -> This is basically a mapping using PCA-SVD
+    This returns a Kernel Transformation Matrix $\Theta$
+
+    It uses kernel approximation offered by the MKlaren package
+    For the sake of completeness (and for my peace of mind, I use the best possible approx.)
+
     :param dframe: input data as a pandas dataframe.
-    :param n_dim: Number of dimensions for the kernel matrix
+    :param n_dim: Number of dimensions for the kernel matrix (default=15)
     :return: $\Theta$ matrix
     """
-    kernel = KernelSVD(n_components)
-    kernel.fit(dframe)
-    return kernel
+    ker = Kinterface(data=dframe.values, kernel=rbf_kernel, kernel_args={"sigma": 30})
+    model = Nystrom(rank=n_dim)
+    model.fit(ker)
+    g_nystrom = model.G
+    err = np.linalg.norm(ker[:, :] - g_nystrom.dot(g_nystrom.T))
+    return g_nystrom
 
 
 def map_transform(src, tgt, n_components=5):
@@ -41,8 +52,6 @@ def map_transform(src, tgt, n_components=5):
     t_col = [col for col in tgt.columns[:-1] if '?' not in col]
     S = src[s_col]
     T = tgt[t_col]
-    all = pd.concat([S,T])
-
     N = int(min(len(S), len(T)))
 
     "Make sure x0, y0 are the same size. Note: This is rerun multiple times."
@@ -53,10 +62,8 @@ def map_transform(src, tgt, n_components=5):
     else:
         x0, y0 = S, T
 
-    mapper = get_kernel_matrix(all, n_components)
-
-    x0 = pd.DataFrame(mapper.transform(x0), columns=xrange(n_components))
-    y0 = pd.DataFrame(mapper.transform(y0), columns=xrange(n_components))
+    x0 = pd.DataFrame(get_kernel_matrix(x0, n_components), columns=xrange(n_components))
+    y0 = pd.DataFrame(get_kernel_matrix(y0, n_components), columns=xrange(n_components))
 
     x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
     y0.loc[:, tgt.columns[-1]] = pd.Series(src[src.columns[-1]], index=y0.index)
@@ -132,7 +139,7 @@ def smart_norm(src, tgt, c_s, c_t):
     :param c_t:
     :return:
     """
-    try: ## !!GUARD: PLEASE REMOVE AFTER DEBUGGING!!
+    try:  ## !!GUARD: PLEASE REMOVE AFTER DEBUGGING!!
         # Rule 1
         if sim(c_s, c_t, e=0) == "S" and sim(c_s, c_t, e=-2) == "S":
             return src, tgt
@@ -158,61 +165,40 @@ def smart_norm(src, tgt, c_s, c_t):
         return src, tgt
 
 
-def tca_plus(source, target):
+def tca_plus(source, target, n_reps=10):
     """
     TCA+: Transfer Component Analysis
     :param source:
     :param target:
-    :return:
+    :return: result
     """
+    result = dict()
+
     for tgt_name, tgt_path in target.iteritems():
-        PD, PF, ED = [], [], []
+        PD, PF, F1, G = [], [], [], []
+        result.update({tgt_name: []})
         print("Target Project: {}\n".format(tgt_name), end="```\n")
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
-                pd, pf, ed = [src_name], [src_name], [src_name]
-                for _ in xrange(3):
+                pd, pf, f1, g = [src_name], [src_name], [src_name], [src_name]
+                for _ in xrange(n_reps):
                     dcv_src, dcv_tgt = get_dcv(src, tgt)
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)
                     actual, predicted = predict_defects(train=_train, test=__test)
-                    p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
-                    pd.append(p_buggy[1].stats()[0])
-                    pf.append(p_buggy[1].stats()[1])
-                    ed.append(p_buggy[1].stats()[-1])
+                    p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted)
+                    pd.append(p_d)
+                    pf.append(p_f)
+                    f1.append(f_1)
+                    g.append(_g)
 
                 PD.append(pd)
                 PF.append(pf)
-                ED.append(ed)
-                # set_trace()
-        rdivDemo(ED, isLatex=False)
-        # set_trace()
-        print('```')
+                F1.append(f1)
+                G.append(g)
 
+        result[tgt_name].append((PD, PF, F1, G))
 
-def execute():
-    """
-    This method performs HDP.
-    :return:
-    """
-    all_projects = get_all_projects()  # Get a dictionary of all projects and their respective pathnames.
-    result = {}  # Store results here
-
-    for target in all_projects.keys():
-        for source in all_projects.keys():
-            if source == target:  # This ensures transfer happens within community
-                print("Target Community: {} | Source Community: {}".format(target, source))
-                tca_plus(all_projects[source], all_projects[target])
-
-
-def __test_tca():
-    """
-    A test case goes here.
-    :return:
-    """
-
-
-if __name__ == "__main__":
-    execute()
+    return result

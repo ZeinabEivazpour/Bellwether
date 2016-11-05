@@ -25,6 +25,7 @@ def dump_json(result, dir='.', fname='data'):
     with open('{}/{}.json'.format(dir, fname), 'w+') as fp:
         json.dump(result, fp)
 
+
 def load_json(path):
     with open(path) as data_file:
         data = json.load(data_file)

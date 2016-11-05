@@ -1,5 +1,5 @@
 """
-Execute SEER on all cores
+Execute TCA+ on all cores
 """
 from __future__ import print_function, division
 
@@ -17,7 +17,7 @@ from pdb import set_trace
 from utils import brew_pickle, dump_json
 
 
-def get_source_target(type="homogeneous"):
+def get_source_target():
     """
     This method performs HDP.
     :return:
@@ -28,14 +28,10 @@ def get_source_target(type="homogeneous"):
 
     for target in all_projects.keys():
         for source in all_projects.keys():
-            if type == "homogeneous":
-                if source == target:
-                    count += 1
-                    project_pairs.append((all_projects[source], all_projects[target], count))
-            else:
-                if not source == target:
-                    count += 1
-                    project_pairs.append((all_projects[source], all_projects[target], count))
+            if source == target:
+                count += 1
+                project_pairs.append((all_projects[source], all_projects[target], count))
+
     return project_pairs
 
 
