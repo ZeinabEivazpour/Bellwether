@@ -17,7 +17,7 @@ from pdb import set_trace
 from utils import brew_pickle, dump_json
 
 
-def get_source_target(type="homogeneous"):
+def get_source_target():
     """
     This method performs HDP.
     :return:
@@ -25,17 +25,12 @@ def get_source_target(type="homogeneous"):
     all_projects = get_all_projects()  # Get a dictionary of all projects and their respective pathnames.
     project_pairs = []
     count = 0  # I use this for referencing saved pickle files
-
     for target in all_projects.keys():
         for source in all_projects.keys():
-            if type == "homogeneous":
-                if source == target:
-                    count += 1
-                    project_pairs.append((all_projects[source], all_projects[target], count))
-            else:
-                if not source == target:
-                    count += 1
-                    project_pairs.append((all_projects[source], all_projects[target], count))
+            if not source == target:
+                count += 1
+                project_pairs.append((all_projects[source], all_projects[target], count))
+
     return project_pairs
 
 
@@ -50,9 +45,8 @@ def execute(project_pairs):
     :return:
     """
     source, target, count = project_pairs
-    result = seer(source, target, n_rep=30, n_redo=10)
-    print(result)
-    dump_json(result,  dir='pickles', fname=str(count))
+    result = seer(source, target)
+    dump_json(result,  dir='pickles_downsamp', fname=str(count))
 
 
 if __name__ == "__main__":
