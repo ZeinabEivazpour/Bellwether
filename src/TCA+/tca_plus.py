@@ -21,6 +21,12 @@ from mklaren.kernel.kinterface import Kinterface
 from mklaren.kernel.kernel import *
 from mklaren.projection.nystrom import Nystrom
 
+## Shut those god damn warnings up!
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 def get_kernel_matrix(dframe, n_dim=15):
     """
@@ -165,7 +171,7 @@ def smart_norm(src, tgt, c_s, c_t):
         return src, tgt
 
 
-def tca_plus(source, target, n_reps=10):
+def tca_plus(source, target, n_rep=10):
     """
     TCA+: Transfer Component Analysis
     :param source:
@@ -183,7 +189,7 @@ def tca_plus(source, target, n_reps=10):
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
                 pd, pf, f1, g = [src_name], [src_name], [src_name], [src_name]
-                for _ in xrange(n_reps):
+                for _ in xrange(n_rep):
                     dcv_src, dcv_tgt = get_dcv(src, tgt)
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)

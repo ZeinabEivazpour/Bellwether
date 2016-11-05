@@ -11,7 +11,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 from data.handler import get_all_projects
-from SEER import seer
+from tca_plus import tca_plus
 import multiprocessing
 from pdb import set_trace
 from utils import brew_pickle, dump_json
@@ -46,12 +46,11 @@ def execute(project_pairs):
     :return:
     """
     source, target, count = project_pairs
-    result = seer(source, target, n_rep=30, n_redo=10)
-    print(result)
-    dump_json(result,  dir='pickles', fname=str(count))
+    result = tca_plus(source, target, n_rep=30)
+    dump_json(result,  dir='json', fname=str(count))
 
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=12)
     project_pairs = get_source_target()
+    pool = multiprocessing.Pool(processes=len(project_pairs))
     pool.map(execute, project_pairs)
