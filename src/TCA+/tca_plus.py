@@ -41,9 +41,12 @@ def get_kernel_matrix(dframe, n_dim=15):
     """
     ker = Kinterface(data=dframe.values, kernel=rbf_kernel, kernel_args={"sigma": 30})
     model = Nystrom(rank=n_dim)
-    model.fit(ker)
+    try:
+        model.fit(ker)
+    except:
+        set_trace()
     g_nystrom = model.G
-    err = np.linalg.norm(ker[:, :] - g_nystrom.dot(g_nystrom.T))
+    # err = np.linalg.norm(ker[:, :] - g_nystrom.dot(g_nystrom.T))
     return g_nystrom
 
 
@@ -171,11 +174,12 @@ def smart_norm(src, tgt, c_s, c_t):
         return src, tgt
 
 
-def tca_plus(source, target, n_rep=10):
+def tca_plus(source, target, n_rep=1):
     """
     TCA+: Transfer Component Analysis
     :param source:
     :param target:
+    :param n_rep: number of repeats
     :return: result
     """
     result = dict()
