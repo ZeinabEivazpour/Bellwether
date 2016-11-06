@@ -70,7 +70,7 @@ def map_transform(src, tgt, n_components=5):
     y0 = pd.DataFrame(mapper.transform(y0), columns=xrange(n_components))
 
     x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
-    y0.loc[:, tgt.columns[-1]] = pd.Series(src[src.columns[-1]], index=y0.index)
+    y0.loc[:, tgt.columns[-1]] = pd.Series(tgt[tgt.columns[-1]], index=y0.index)
 
     return x0, y0
 

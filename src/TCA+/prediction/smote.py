@@ -7,6 +7,11 @@ import pandas as pd
 from scipy.spatial.distance import euclidean
 from sklearn.neighbors import BallTree
 
+import warnings
+with warnings.catch_warnings():
+    # Shut those god damn warnings up!
+    warnings.filterwarnings("ignore")
+
 
 def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
     """
@@ -71,13 +76,14 @@ def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
     newCells = []
     klass = lambda df: df[df.columns[-1]]
     count = Counter(klass(data))
-
     major, minor = count.keys()
+    atleast = 10*count[minor]
+    atmost = 5*count[major]
     for u in count.keys():
         if u == minor:
             newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
         if u == major:
-            newCells.extend(depopulate([r for r in data.as_matrix() if r[-1] == u]))
+            newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atmost))
         else:
             newCells.extend([r.tolist() for r in data.as_matrix() if r[-1] == u])
     # set_trace()

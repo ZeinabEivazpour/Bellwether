@@ -25,11 +25,11 @@ class Counter:
             Sen = self.TP / (self.TP + self.FN)
             Spec = self.TN / (self.TN + self.FP)
             Prec = self.TP / (self.TP + self.FP)
-            Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
-            F = 2 * (Prec * Sen) / (Prec + Sen)
-            G = 2 * Sen * Spec / (Sen + Spec)
+            # Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
+            F1 = 2 * (Prec * Sen) / (Prec + Sen)
+            G = np.sqrt(Sen*Spec)
             ED = np.sqrt(0.6*(1-Sen)**2+0.3*(1-Spec)**2)
-            return Sen, 1-Spec, Prec, Acc, F, G, ED
+            return Sen, 1-Spec, Prec, Sen, F1, ED, G
         except ZeroDivisionError:
             return 0, 0, 0, 0, 0, 0, 0
 

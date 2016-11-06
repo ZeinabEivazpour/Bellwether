@@ -7,25 +7,20 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-from data.handler import get_all_projects
-from prediction.model import rf_model
-from pdb import set_trace
+import warnings
+from prediction.model import rf_model_old
 from utils import *
 from scipy.spatial.distance import euclidean
-from sklearn.decomposition import TruncatedSVD as KernelSVD
-from numpy.random import choice
-import numpy as np
-from stats.scott_knott import sk_chart
 from metrics.abcd import abcd
 from mklaren.kernel.kinterface import Kinterface
 from mklaren.kernel.kernel import *
-from mklaren.projection.nystrom import Nystrom
-
-## Shut those god damn warnings up!
-import warnings
+from mklaren.projection.icd import ICD
+from pdb import set_trace
+from texttable import Texttable
 
 with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    # Shut those god damn warnings up!
+    warnings.filterwarnings("ignore")
 
 
 def get_kernel_matrix(dframe, n_dim=15):
@@ -39,14 +34,15 @@ def get_kernel_matrix(dframe, n_dim=15):
     :param n_dim: Number of dimensions for the kernel matrix (default=15)
     :return: $\Theta$ matrix
     """
-    ker = Kinterface(data=dframe.values, kernel=rbf_kernel, kernel_args={"sigma": 30})
-    model = Nystrom(rank=n_dim)
+    ker = Kinterface(data=dframe.values, kernel=linear_kernel)
+    model = ICD(rank=n_dim)
     try:
         model.fit(ker)
-    except:
-        set_trace()
+    except Exception as e:
+        print(e)
+        model.fit(ker)
+
     g_nystrom = model.G
-    # err = np.linalg.norm(ker[:, :] - g_nystrom.dot(g_nystrom.T))
     return g_nystrom
 
 
@@ -71,11 +67,14 @@ def map_transform(src, tgt, n_components=5):
     else:
         x0, y0 = S, T
 
-    x0 = pd.DataFrame(get_kernel_matrix(x0, n_components), columns=xrange(n_components))
-    y0 = pd.DataFrame(get_kernel_matrix(y0, n_components), columns=xrange(n_components))
+    col_name = ["Col_" + str(i) for i in xrange(n_components)]
+    x0 = pd.DataFrame(get_kernel_matrix(x0, n_components), columns=col_name)
+    y0 = pd.DataFrame(get_kernel_matrix(y0, n_components), columns=col_name)
+
+    # set_trace()
 
     x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
-    y0.loc[:, tgt.columns[-1]] = pd.Series(src[src.columns[-1]], index=y0.index)
+    y0.loc[:, tgt.columns[-1]] = pd.Series(tgt[tgt.columns[-1]], index=y0.index)
 
     return x0, y0
 
@@ -92,8 +91,8 @@ def predict_defects(train, test):
     test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
 
     actual = test[test.columns[-1]].values.tolist()
+    predicted = rf_model_old(train, test)
 
-    predicted = rf_model(train, test)
     return actual, predicted
 
 
@@ -174,6 +173,17 @@ def smart_norm(src, tgt, c_s, c_t):
         return src, tgt
 
 
+def pretty_print_stats(stats):
+    table_rows = [["Name", "Pd  ", "Pf  ", "G   "]]
+    table_rows.extend(sorted(stats, key=lambda F: float(F[-1]), reverse=True))
+    table = Texttable()
+    table.set_cols_align(["l", "l", 'l', "l"])
+    table.set_cols_valign(["m", "m", "m", "m"])
+    table.set_cols_dtype(['t', 't', 't', 't'])
+    table.add_rows(table_rows)
+    print(table.draw(), "\n")
+
+
 def tca_plus(source, target, n_rep=1):
     """
     TCA+: Transfer Component Analysis
@@ -187,9 +197,11 @@ def tca_plus(source, target, n_rep=1):
     for tgt_name, tgt_path in target.iteritems():
         PD, PF, F1, G = [], [], [], []
         result.update({tgt_name: []})
-        print("Target Project: {}\n".format(tgt_name), end="```\n")
+        print("### Target Project: {}\n".format(tgt_name.upper()), end="```\n")
+        val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
+                # print(src_name[:3] + "\n---")
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
                 pd, pf, f1, g = [src_name], [src_name], [src_name], [src_name]
@@ -199,16 +211,43 @@ def tca_plus(source, target, n_rep=1):
                     _train, __test = map_transform(norm_src, norm_tgt)
                     actual, predicted = predict_defects(train=_train, test=__test)
                     p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted)
+                    name = src_name[:4] if len(src_name) <= 4 else src_name + (4 - len(src_name)) * " "
+                    val.append([name,
+                                "%0.2f" % p_d,
+                                "%0.2f" % p_f,
+                                "%0.2f" % _g])
+
+                    # "%0.2f" % p_r,
+                    # "%0.2f" % rc,
+                    # "%0.2f" % f_1,
+                    # "%0.2f" % e_d,
+
                     pd.append(p_d)
                     pf.append(p_f)
                     f1.append(f_1)
                     g.append(_g)
+
 
                 PD.append(pd)
                 PF.append(pf)
                 F1.append(f1)
                 G.append(g)
 
+        pretty_print_stats(val)
+        print("```")
         result[tgt_name].append((PD, PF, F1, G))
-
     return result
+
+
+def _test_kernel_matrix():
+    from data.handler import get_all_projects
+    all = get_all_projects()
+    apache = all["Apache"]
+
+    tca_plus(apache, apache, n_rep=1)
+
+    set_trace()
+
+
+if __name__ == "__main__":
+    _test_kernel_matrix()

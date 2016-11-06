@@ -1,11 +1,19 @@
 #! /Users/rkrsn/miniconda/bin/python
 from __future__ import print_function, division
 
+import os
+import sys
+
+from texttable import Texttable
+
 from Prediction import *
 from logo import logo
 from methods1 import *
-from sk import rdivDemo
 from stats import ABCD
+
+root = os.path.join(os.getcwd().split('src')[0], 'src')
+if root not in sys.path:
+    sys.path.append(root)
 
 
 def getTunings(fname):
@@ -64,13 +72,12 @@ class simulate:
         # set_trace()
         self.test = createTbl(src.test, isBin=True)
 
-
     def bellwether(self):
         everything = []
         src = data(dataName=self.file, type=self.type)
         self.test = createTbl(src.test, isBin=True)
 
-        table_rows = [["Dataset", "ED", "G2", "Pd", "Pf"]]
+        table_rows = [["Name", "Pd  ", "Pf  ", "G   "]]  # "Prec", "Rec ", "F1  ", "Bal ", "G   "]]
 
         if len(src.train) == 1:
             train = src.train[0]
@@ -85,29 +92,36 @@ class simulate:
             header.append(fname)
             self.train = createTbl(file, isBin=True)
             actual = Bugs(self.test)
-            for _ in xrange(10):
+            for _ in xrange(1):
                 predicted = rforest(
                     self.train,
                     self.test,
                     tunings=self.param)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
                 e.append(p_buggy[1].stats()[-1])
+                name = fname[:4] if len(fname) <= 4 else fname + (4 - len(fname)) * " "
+                val.append([name,
+                            "%0.2f" % p_buggy[1].stats()[0],
+                            "%0.2f" % p_buggy[1].stats()[1],
+                            "%0.2f" % p_buggy[1].stats()[6]])
 
-                # val.append([fname, "%0.2f" % p_buggy[1].stats()[-2], "%0.2f" % p_buggy[1].stats()[-3]
-                #                , "%0.2f" % p_buggy[1].stats()[0], "%0.2f" % p_buggy[1].stats()[1]])
-            everything.append(e)
+                # "%0.2f" % p_buggy[1].stats()[2],
+                # "%0.2f" % p_buggy[1].stats()[3],
+                # "%0.2f" % p_buggy[1].stats()[4],
+                # "%0.2f" % p_buggy[1].stats()[5],
+                # everything.append(e)
 
-        rdivDemo(everything, isLatex=True)
+        # rdivDemo(everything, isLatex=True)
 
-        # table_rows.extend(sorted(val, key=lambda F: float(F[2]), reverse=True))
+        table_rows.extend(sorted(val, key=lambda F: float(F[-1]), reverse=True))
         #
         # "Pretty Print Thresholds"
-        # table = Texttable()
-        # table.set_cols_align(["l", 'l', "l", "l", "l"])
-        # table.set_cols_valign(["m", "m", "m", "m", "m"])
-        # table.set_cols_dtype(['t', 't', 't', 't', 't'])
-        # table.add_rows(table_rows)
-        # print(table.draw(), "\n")
+        table = Texttable()
+        table.set_cols_align(["l", "l", 'l', "l"])  # , "l", "l", "l", "l"]) #
+        table.set_cols_valign(["m", "m", "m", "m"])  # , "m", "m", "m", "m"])
+        table.set_cols_dtype(['t', 't', 't', 't'])  # , 't', 't', 't', 't'])
+        table.add_rows(table_rows)
+        print(table.draw(), "\n")
 
         # ---------- DEBUG ----------
         #   set_trace()

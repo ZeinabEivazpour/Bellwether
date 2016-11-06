@@ -6,7 +6,7 @@ from methods1 import *
 from smote import *
 
 
-def formatData(tbl, picksome=False, addsome=None):
+def formatdata(tbl, picksome=False, addsome=None):
     """ Convert Tbl to Pandas DataFrame
 
     :param tbl: Thing object created using function createTbl
@@ -56,11 +56,11 @@ def rforest(train, test, tunings=None, picksome=False):
                                      min_samples_split=int(tunings[3]))
 
     if picksome:
-        train_DF, some = formatData(train, True)
-        test_DF = formatData(test, False, some)
+        train_DF, some = formatdata(train, True)
+        test_DF = formatdata(test, False, some)
     else:
-        train_DF = formatData(train, False, None)
-        test_DF = formatData(test, False, None)
+        train_DF = formatdata(train, False, None)
+        test_DF = formatdata(test, False, None)
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)

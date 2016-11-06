@@ -1,8 +1,11 @@
 from __future__ import division
+
 import os
 import sys
+
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+
 from smote import SMOTE
 
 root = os.path.join(os.getcwd().split('src')[0], 'src')
@@ -10,7 +13,14 @@ if root not in sys.path:
     sys.path.append(root)
 
 from old.Prediction import rforest
+
 from data.handler import *
+
+import warnings
+
+with warnings.catch_warnings():
+    # Shut those god damn warnings up!
+    warnings.filterwarnings("ignore")
 
 
 def getTunings(fname):
@@ -39,6 +49,21 @@ def rf_model(source, target):
     clf.fit(source[features], klass)
     preds = clf.predict(target[target.columns[:-1]])
     return preds
+
+
+def rf_model_old(source, target):
+
+    def df2thing(dframe):
+        dframe.to_csv('temp.csv', index=False)
+        new_thing = createTbl(['temp.csv'], isBin=True)
+        os.remove('temp.csv')
+        return new_thing
+
+    train = df2thing(source)
+    test = df2thing(target)
+
+    return rforest(train, test)
+
 
 
 def rf_model0(source, target, name):
