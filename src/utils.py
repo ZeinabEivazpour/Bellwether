@@ -12,7 +12,7 @@ except ImportError:
     import pickle
 
 import json
-import StringIO
+from StringIO import StringIO
 import prettytable
 
 __root__ = os.path.join(os.getcwd().split('HDP')[0], 'HDP')
@@ -23,21 +23,26 @@ if __root__ not in sys.path:
 Some awesome utility functions used everywhere
 """
 
+
 def stringify_pandas(pd):
-    output = StringIO(); pd.to_csv(output); output.seek(0); pt = prettytable.from_csv(output)
+    output = StringIO();
+    pd.to_csv(output);
+    output.seek(0);
+    pt = prettytable.from_csv(output)
     return pt
 
+
 def print_pandas(pd, op="text"):
-    if op.lower() is 'text':
-        output = StringIO()
-        pd.to_csv(output)
-        output.seek(0)
-        pt = prettytable.from_csv(output)
-        print(pt)
-    elif op.lower() is 'latex':
-        pd.to_latex()
-    else:
-        print(pd)
+    # if op.lower() is 'text':
+    #     output = StringIO()
+    #     pd.to_csv(output)
+    #     output.seek(0)
+    #     pt = prettytable.from_csv(output)
+    #     print(pt)
+    prefix = "\\begin{figure}\n\\centering\n\\resizebox{\\textwidth}{!}{"
+    postfix = "}\n\\end{figure}"
+    body = pd.to_latex()
+    print(prefix+body+postfix)
 
 
 def list2dataframe(lst):

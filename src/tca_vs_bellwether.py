@@ -35,8 +35,7 @@ if __name__ == "__main__":
         tca = a[1][p].set_index("Name").sort_index()  # Rename index and sort alphabetically
         both = pandas.concat([tca, bell], axis=1, join_axes=[tca.index])
         all_metrics = hedges_g_2(both)
-        print_pandas(all_metrics, op="text")
-        print_pandas(all_metrics, op="latex")
+        print_pandas(all_metrics)
         print("\n\n")
 
     set_trace()

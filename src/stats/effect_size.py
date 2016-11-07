@@ -55,7 +55,7 @@ def hedges_g_2(dist, small=0.38):
 
     def hg(m1, m2, s1, s2):
         s = np.sqrt(((n1 - 1) * s1 ** 2 + (n2 - 1) * s2 ** 2) / (n1 + n2 - 2))
-        g_score = correct_bias * (m1 - m2) / (s + 1e-32) # Adding 1e-32 handles 0 std
+        g_score = correct_bias * (m1 - m2) / (s + 1e-32)  # Adding 1e-32 handles 0 std
         return str(round(-g_score, 2)) if abs(g_score) >= small else " "
 
     all = []
@@ -69,25 +69,25 @@ def hedges_g_2(dist, small=0.38):
 
         all.append([id,  # Name
                     # TCA+
-                    round(stats.values[0], 2), round(stats.values[1], 2),  # Pd (mean), Pd(std)
-                    round(stats.values[2], 2), round(stats.values[3], 2),  # Pf (mean), Pf(std)
-                    round(stats.values[4], 2), round(stats.values[5], 2),  # G (mean), G(std)
+                    round(stats.values[0], 2),  # Pd (mean), Pd(std)
+                    round(stats.values[2], 2),  # Pf (mean), Pf(std)
+                    round(stats.values[4], 2),  # G (mean), G(std)
                     # Bellwether
-                    round(stats.values[6], 2), round(stats.values[7], 2),  # Pd (mean), Pd(std)
-                    round(stats.values[8], 2), round(stats.values[9], 2),  # Pf (mean), Pf(std)
-                    round(stats.values[11], 2), round(stats.values[11], 2),  # G (mean), G(std)
+                    round(stats.values[6], 2),  # Pd (mean), Pd(std)
+                    round(stats.values[8], 2),  # Pf (mean), Pf(std)
+                    round(stats.values[11], 2),  # G (mean), G(std)
                     # Hedges' G (Pd),  Hedges' G (Pf),  Hedges' G (G)
                     pd_hg, pf_hg, g_hg])
 
     return pd.DataFrame(all, columns=["Name",
                                       # TCA+
-                                      "Pd (mean)", "Pd (std)",
-                                      "Pf (mean)", "Pf (std)",
-                                      "G (mean)", "G (std)",
+                                      "Pd (mean)",
+                                      "Pf (mean)",
+                                      "G (mean)",
                                       # Bellwether
-                                      "Pd (mean)", "Pd (std)",
-                                      "Pf (mean)", "Pf (std)",
-                                      "G (mean)", "G (std)",
+                                      "Pd (mean)",
+                                      "Pf (mean)",
+                                      "G (mean)",
                                       # Hedge's G
                                       "Pd (Hedges's G)",
                                       "Pf (Hedges's G)",
