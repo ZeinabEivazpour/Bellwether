@@ -17,6 +17,8 @@ from pdb import set_trace
 from stats.effect_size import hedges_g_2
 import pandas
 from utils import print_pandas
+
+
 # NOTE TO SELF: REFACTOR THE TRANSFER LEARNER
 
 def compute(method):
@@ -30,7 +32,7 @@ if __name__ == "__main__":
     projects = a[0].keys()
 
     for p in projects:
-        print("## {}".format(p))
+        print("\\subsubsection*{}".format(p))
         bell = a[0][p].set_index("Name").sort_index()  # Rename index and sort alphabetically
         tca = a[1][p].set_index("Name").sort_index()  # Rename index and sort alphabetically
         both = pandas.concat([tca, bell], axis=1, join_axes=[tca.index])
