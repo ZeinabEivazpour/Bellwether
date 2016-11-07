@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import *
 
 
-def abcd(actual, predicted):
+def abcd(actual, predicted, as_percent=True):
     """
     Confusion Matrix:
 
@@ -57,9 +57,13 @@ def abcd(actual, predicted):
         f1 = 0
 
     ed = np.sqrt(0.7 * (1 - p_d) ** 2 + 0.3 * p_f ** 2)
+    e_d = 1 / ((0.7 / p_d) + (0.3 / (1 - p_f)))
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
 
-    return p_d, p_f, p_r, r_c, f1, ed, g
+    if as_percent is True:
+        return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100
+    else:
+        return p_d, p_f, p_r, r_c, f1, e_d, g
 
 
 def print_stats(actual, predicted, name="name", header=False):

@@ -8,15 +8,18 @@ if root not in sys.path:
     sys.path.append(root)
 
 import warnings
-from prediction.model import rf_model_old
+from prediction.model import rf_model
 from utils import *
-from scipy.spatial.distance import euclidean
 from metrics.abcd import abcd
 from mklaren.kernel.kinterface import Kinterface
 from mklaren.kernel.kernel import *
 from mklaren.projection.icd import ICD
 from pdb import set_trace
 from texttable import Texttable
+import numpy as np
+from scipy.spatial.distance import pdist, squareform
+import pandas
+from time import time
 
 with warnings.catch_warnings():
     # Shut those god damn warnings up!
@@ -57,21 +60,10 @@ def map_transform(src, tgt, n_components=5):
     t_col = [col for col in tgt.columns[:-1] if '?' not in col]
     S = src[s_col]
     T = tgt[t_col]
-    N = int(min(len(S), len(T)))
-
-    "Make sure x0, y0 are the same size. Note: This is rerun multiple times."
-    if len(S) > len(T):
-        x0, y0 = S.sample(n=N), T
-    elif len(S) < len(T):
-        x0, y0 = S, T.sample(n=N)
-    else:
-        x0, y0 = S, T
 
     col_name = ["Col_" + str(i) for i in xrange(n_components)]
-    x0 = pd.DataFrame(get_kernel_matrix(x0, n_components), columns=col_name)
-    y0 = pd.DataFrame(get_kernel_matrix(y0, n_components), columns=col_name)
-
-    # set_trace()
+    x0 = pd.DataFrame(get_kernel_matrix(S, n_components), columns=col_name)
+    y0 = pd.DataFrame(get_kernel_matrix(T, n_components), columns=col_name)
 
     x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
     y0.loc[:, tgt.columns[-1]] = pd.Series(tgt[tgt.columns[-1]], index=y0.index)
@@ -91,7 +83,7 @@ def predict_defects(train, test):
     test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
 
     actual = test[test.columns[-1]].values.tolist()
-    predicted = rf_model_old(train, test)
+    predicted = rf_model(train, test)
 
     return actual, predicted
 
@@ -104,12 +96,8 @@ def get_dcv(src, tgt):
     T = tgt[t_col]
 
     def self_dist_mtx(arr):
-        dist = []
-        for a, a_val in enumerate(arr[:-1]):
-            for b, b_val in enumerate(arr[1:]):
-                if a < b:
-                    dist.append(euclidean(a, b))
-        return dist
+        dist_arr = pdist(arr)
+        return squareform(dist_arr)
 
     dist_src = self_dist_mtx(S.values)
     dist_tgt = self_dist_mtx(T.values)
@@ -184,9 +172,9 @@ def pretty_print_stats(stats):
     print(table.draw(), "\n")
 
 
-def tca_plus(source, target, n_rep=1):
+def tca_plus(source, target, n_rep=12):
     """
-    TCA+: Transfer Component Analysis
+    TCA: Transfer Component Analysis
     :param source:
     :param target:
     :param n_rep: number of repeats
@@ -195,18 +183,16 @@ def tca_plus(source, target, n_rep=1):
     result = dict()
 
     for tgt_name, tgt_path in target.iteritems():
-        PD, PF, F1, G = [], [], [], []
-        result.update({tgt_name: []})
+        stats = []
         print("### Target Project: {}\n".format(tgt_name.upper()), end="```\n")
         val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
-                # print(src_name[:3] + "\n---")
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
-                pd, pf, f1, g = [src_name], [src_name], [src_name], [src_name]
+                pd, pf, g = [], [], []
+                dcv_src, dcv_tgt = get_dcv(src, tgt)
                 for _ in xrange(n_rep):
-                    dcv_src, dcv_tgt = get_dcv(src, tgt)
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)
                     actual, predicted = predict_defects(train=_train, test=__test)
@@ -215,39 +201,30 @@ def tca_plus(source, target, n_rep=1):
                     val.append([name,
                                 "%0.2f" % p_d,
                                 "%0.2f" % p_f,
-                                "%0.2f" % _g])
-
-                    # "%0.2f" % p_r,
-                    # "%0.2f" % rc,
-                    # "%0.2f" % f_1,
-                    # "%0.2f" % e_d,
+                                "%0.2f" % e_d])
 
                     pd.append(p_d)
                     pf.append(p_f)
-                    f1.append(f_1)
                     g.append(_g)
 
+                stats.append([src_name, round(np.mean(pd), 2), round(np.std(pd)),
+                              round(np.mean(pf), 2), round(np.std(pf), 2),
+                              round(np.mean(g), 2), round(np.std(g), 2)])
 
-                PD.append(pd)
-                PF.append(pf)
-                F1.append(f1)
-                G.append(g)
-
-        pretty_print_stats(val)
-        print("```")
-        result[tgt_name].append((PD, PF, F1, G))
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True)  # Sort by G Score
+                                 , columns=["Name", "Pd (Mean)", "Pd (Std)",
+                                            "Pf (Mean)", "Pf (Std)",
+                                            "G (Mean)", "G (Std)"])
+        result.update({tgt_name: stats})
     return result
 
 
-def _test_kernel_matrix():
+def tca_jur():
     from data.handler import get_all_projects
     all = get_all_projects()
     apache = all["Apache"]
-
-    tca_plus(apache, apache, n_rep=1)
-
-    set_trace()
+    return tca_plus(apache, apache, n_rep=2)
 
 
 if __name__ == "__main__":
-    _test_kernel_matrix()
+    tca_jur()

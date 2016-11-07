@@ -10,6 +10,7 @@ from Prediction import *
 from logo import logo
 from methods1 import *
 from stats import ABCD
+import pandas
 
 root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
@@ -17,7 +18,7 @@ if root not in sys.path:
 
 
 def getTunings(fname):
-    raw = pd.read_csv('tunings.csv').transpose().values.tolist()
+    raw = pd.read_csv(root + '/old/tunings.csv').transpose().values.tolist()
     formatd = pd.DataFrame(raw[1:], columns=raw[0])
     return formatd[fname].values.tolist()
 
@@ -63,68 +64,49 @@ class simulate:
         self.file = file
         self.type = type
         self.param = None if not tune else getTunings(file)
-        # set_trace()
 
     def incrUpdates(self):
         """When to update a reference set"""
-        everything = []
         src = data(dataName=self.file, type=self.type)
-        # set_trace()
         self.test = createTbl(src.test, isBin=True)
 
     def bellwether(self):
-        everything = []
         src = data(dataName=self.file, type=self.type)
         self.test = createTbl(src.test, isBin=True)
-
-        table_rows = [["Name", "Pd  ", "Pf  ", "G   "]]  # "Prec", "Rec ", "F1  ", "Bal ", "G   "]]
-
         if len(src.train) == 1:
             train = src.train[0]
         else:
             train = src.train
         header = [" "]
-        # onlyMe = [self.file]
-        val = []
+        stats = []
         for file in train:
             fname = file[0].split('/')[-2]
-            e = [fname]
+            e = []
             header.append(fname)
             self.train = createTbl(file, isBin=True)
             actual = Bugs(self.test)
-            for _ in xrange(1):
+            pd, pf, e_d, val = [], [], [], []
+            for _ in xrange(2):
                 predicted = rforest(
                     self.train,
                     self.test,
                     tunings=self.param)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
-                e.append(p_buggy[1].stats()[-1])
-                name = fname[:4] if len(fname) <= 4 else fname + (4 - len(fname)) * " "
-                val.append([name,
-                            "%0.2f" % p_buggy[1].stats()[0],
-                            "%0.2f" % p_buggy[1].stats()[1],
-                            "%0.2f" % p_buggy[1].stats()[6]])
+                e.append([p_buggy[1].stats()[-1]])
 
-                # "%0.2f" % p_buggy[1].stats()[2],
-                # "%0.2f" % p_buggy[1].stats()[3],
-                # "%0.2f" % p_buggy[1].stats()[4],
-                # "%0.2f" % p_buggy[1].stats()[5],
-                # everything.append(e)
+                pd.append(p_buggy[1].stats()[0])
+                pf.append(p_buggy[1].stats()[1])
+                e_d.append(p_buggy[1].stats()[-2])
 
-        # rdivDemo(everything, isLatex=True)
+            stats.append([fname, round(np.mean(pd), 2), round(np.std(pd), 2),
+                          round(np.mean(pf), 2), round(np.std(pf), 2),
+                          round(np.mean(e_d), 2), round(np.std(e_d), 2)])
 
-        table_rows.extend(sorted(val, key=lambda F: float(F[-1]), reverse=True))
-        #
-        # "Pretty Print Thresholds"
-        table = Texttable()
-        table.set_cols_align(["l", "l", 'l', "l"])  # , "l", "l", "l", "l"]) #
-        table.set_cols_valign(["m", "m", "m", "m"])  # , "m", "m", "m", "m"])
-        table.set_cols_dtype(['t', 't', 't', 't'])  # , 't', 't', 't', 't'])
-        table.add_rows(table_rows)
-        print(table.draw(), "\n")
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),
+                                 columns=["Name", "Pd (Mean)", "Pd (Std)", "Pf (Mean)", "Pf (Std)", "G (Mean)",
+                                          "G (Std)"])
 
-        # ---------- DEBUG ----------
-        #   set_trace()
+        return stats
 
 
 def attributes(type='jur'):
@@ -174,12 +156,12 @@ def nasa():
 
 
 def jur():
-    print("Jureczko\n------\n```")
+    result = {}
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                  'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
-        print('### ' + file)
-        simulate(file, type='jur').bellwether()
-    print('```')
+        result.update({file: simulate(file, type='jur').bellwether()})
+
+    return result
 
 
 def aeeem():

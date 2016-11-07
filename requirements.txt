@@ -10,3 +10,5 @@ networkx
 texttable
 oct2py
 cvxopt
+astropy
+prettytable

@@ -52,5 +52,6 @@ def execute(project_pairs):
 
 if __name__ == "__main__":
     project_pairs = get_source_target()
+    set_trace()
     pool = multiprocessing.Pool(processes=len(project_pairs))
     pool.map(execute, project_pairs)

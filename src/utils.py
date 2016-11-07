@@ -1,7 +1,9 @@
 from __future__ import print_function, division
+
 import os
 import sys
 from random import shuffle
+
 import pandas as pd
 
 try:
@@ -10,10 +12,32 @@ except ImportError:
     import pickle
 
 import json
+import StringIO
+import prettytable
 
 __root__ = os.path.join(os.getcwd().split('HDP')[0], 'HDP')
 if __root__ not in sys.path:
     sys.path.append(__root__)
+
+"""
+Some awesome utility functions used everywhere
+"""
+
+def stringify_pandas(pd):
+    output = StringIO(); pd.to_csv(output); output.seek(0); pt = prettytable.from_csv(output)
+    return pt
+
+def print_pandas(pd, op="text"):
+    if op.lower() is 'text':
+        output = StringIO()
+        pd.to_csv(output)
+        output.seek(0)
+        pt = prettytable.from_csv(output)
+        print(pt)
+    elif op.lower() is 'latex':
+        pd.to_latex()
+    else:
+        print(pd)
 
 
 def list2dataframe(lst):
