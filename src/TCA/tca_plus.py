@@ -39,12 +39,7 @@ def get_kernel_matrix(dframe, n_dim=15):
     """
     ker = Kinterface(data=dframe.values, kernel=linear_kernel)
     model = ICD(rank=n_dim)
-    try:
-        model.fit(ker)
-    except Exception as e:
-        print(e)
-        model.fit(ker)
-
+    model.fit(ker)
     g_nystrom = model.G
     return g_nystrom
 
@@ -184,7 +179,7 @@ def tca_plus(source, target, n_rep=12):
 
     for tgt_name, tgt_path in target.iteritems():
         stats = []
-        print("### Target Project: {}\n".format(tgt_name.upper()), end="```\n")
+        print("{}\n".format(tgt_name[0].upper()+tgt_name[1:]))
         val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
