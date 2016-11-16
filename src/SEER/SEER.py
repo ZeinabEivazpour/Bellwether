@@ -7,20 +7,22 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-from prediction.model import rf_model
+from prediction.model import rf_model, rf_model0
 from old.stats import ABCD
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from numpy.random import choice
 import numpy as np
+from metrics.abcd import abcd
 from matching.bahsic.hsic import CHSIC
 from sklearn.decomposition import TruncatedSVD as KernelSVD
 from utils import *
 from pdb import set_trace
 from time import time
+import pandas
+from py_weka.classifier import classify
 
-
-## Shut those god damn warnings up!
+#  Shut those god damn warnings up!
 import warnings
 
 with warnings.catch_warnings():
@@ -152,20 +154,42 @@ def metrics_match(src, tgt, n_redo):
     return selected_col
 
 
-def predict_defects(train, test):
+def predict_defects(train, test, weka=True):
     """
 
     :param train:
+    :type train:
     :param test:
+    :type test:
+    :param weka:
+    :type weka:
     :return:
     """
-    # Binarize data
-    train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
-    test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
 
     actual = test[test.columns[-1]].values.tolist()
+    actual = [1 if act == "T" else 0 for act in actual]
 
-    predicted = rf_model(train, test)
+    if weka:
+        train.to_csv('./tmp/train.csv', index=False)
+        test.to_csv('./tmp/test.csv', index=False)
+
+        predicted = classify(train=os.path.abspath('./tmp/train.csv'),
+                             test=os.path.abspath('./tmp/test.csv'),
+                             name="rf")
+
+        # set_trace()
+
+        predicted = [1 if p > 0.5 else 0 for p in predicted]
+
+        # Remove temporary csv files to avoid conflicts
+        os.remove('./tmp/train.csv')
+        os.remove('./tmp/test.csv')
+    else:
+        # Binarize data
+        train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
+        test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
+        predicted = rf_model0(train, test)
+
     return actual, predicted
 
 
@@ -179,48 +203,66 @@ def seer(source, target, n_rep=20, n_redo=5):
     result = dict()
     t0 = time()
     for tgt_name, tgt_path in target.iteritems():
-        t1 = time()
-        PD, PF, ED = [], [], []
-        result.update({tgt_name: []})
+        stats = []
         for src_name, src_path in source.iteritems():
-            t2 = time()
-            src = list2dataframe(src_path.data)
-            tgt = list2dataframe(tgt_path.data)
-            pd, pf, ed = [src_name], [src_name], [src_name]
-            matched_src = metrics_match(src, tgt, n_redo)
-            for n in xrange(n_rep):
+            if not src_name == tgt_name:
+                src = list2dataframe(src_path.data)
+                tgt = list2dataframe(tgt_path.data)
+                pd, pf, g = [], [], []
 
-                target_columns = []
-                source_columns = []
+                matched_src = metrics_match(src, tgt, n_redo)
 
-                all_columns = [(key, val[0], val[1]) for key, val in matched_src.iteritems() if val[1] > 1]
-                all_columns = sorted(all_columns, key=lambda x: x[-1])[::-1]  # Sort descending
+                for n in xrange(n_rep):
+                    target_columns = []
+                    source_columns = []
 
-                # Filter all columns to remove dupes
-                for elem in all_columns:
-                    if not elem[1] in source_columns:
-                        target_columns.append(elem[0])
-                        source_columns.append(elem[1])
+                    all_columns = [(key, val[0], val[1]) for key, val in matched_src.iteritems() if val[1] > 1]
+                    all_columns = sorted(all_columns, key=lambda x: x[-1], reverse=True)  # Sort descending
 
-                _train, __test = df_norm(src[source_columns + [src.columns[-1]]]), \
-                                 df_norm(tgt[target_columns + [tgt.columns[-1]]])
+                    # Filter all columns to remove dupes
+                    for elem in all_columns:
+                        if not elem[1] in source_columns:
+                            target_columns.append(elem[0])
+                            source_columns.append(elem[1])
 
-                # _train, __test = map_transform(src[source_columns + [src.columns[-1]]],
-                #                          tgt[target_columns + [tgt.columns[-1]]])
+                    _train, __test = src[source_columns + [src.columns[-1]]], \
+                                     tgt[target_columns + [tgt.columns[-1]]]
 
-                actual, predicted = predict_defects(train=_train, test=__test)
-                p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
-                pd.append(p_buggy[1].stats()[0])
-                pf.append(p_buggy[1].stats()[1])
-                ed.append(p_buggy[1].stats()[-1])
-            print("Time per source (s: {0}): {1:.2f}s".format(src_name, time()-t2))
-            PD.append(pd)
-            PF.append(pf)
-            ED.append(ed)
+                    # _train, __test = map_transform(src[source_columns + [src.columns[-1]]],
+                    #                          tgt[target_columns + [tgt.columns[-1]]])
 
-        print("Time per target (t: {0}): {1:.2f}s".format(tgt_name, time()-t1))
-        result[tgt_name].append((PD, PF))
-    
-    print("Time per call: {0:.2f}s".format(time()-t0))
-    set_trace()
+                    # set_trace()
+                    actual, predicted = predict_defects(train=_train, test=__test)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted)
+                    pd.append(p_d)
+                    pf.append(p_f)
+                    g.append(e_d)
+
+                stats.append([src_name, round(np.mean(pd), 2), round(np.std(pd)),
+                              round(np.mean(pf), 2), round(np.std(pf), 2),
+                              round(np.mean(g), 2), round(np.std(g), 2)])
+                # set_trace()
+
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
+                                 columns=["Name", "Pd (Mean)", "Pd (Std)",
+                                          "Pf (Mean)", "Pf (Std)",
+                                          "G (Mean)", "G (Std)"])
+        set_trace()
+        result.update({tgt_name: stats})
     return result
+
+
+"""
+Test case: Apache Datasets
+"""
+
+
+def seer_jur():
+    from data.handler import get_all_projects
+    all = get_all_projects()
+    apache = all["Apache"]
+    return seer(apache, apache, n_rep=10, n_redo=5)
+
+
+if __name__ == "__main__":
+    seer_jur()

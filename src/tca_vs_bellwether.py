@@ -19,7 +19,7 @@ import pandas
 from utils import print_pandas
 
 
-# NOTE TO SELF: REFACTOR THE TRANSFER LEARNER
+# Note To Self: REFACTOR THE TRANSFER LEARNER
 
 def compute(method):
     return method()
@@ -32,12 +32,10 @@ if __name__ == "__main__":
     projects = a[0].keys()
 
     for p in projects:
-        print("\\subsubsection*{}".format(p))
+        print("\\textbf{" + str(p) + "}")
         bell = a[0][p].set_index("Name").sort_index()  # Rename index and sort alphabetically
         tca = a[1][p].set_index("Name").sort_index()  # Rename index and sort alphabetically
         both = pandas.concat([tca, bell], axis=1, join_axes=[tca.index])
         all_metrics = hedges_g_2(both)
-        print_pandas(all_metrics)
+        print_pandas(all_metrics.set_index("Name"))
         print("\n\n")
-
-    set_trace()

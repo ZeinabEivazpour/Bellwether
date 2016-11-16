@@ -60,9 +60,13 @@ def SMOTE(data=None, atleast=101, atmost=101, k=5, type='Both'):
     count = Counter(klass(data))
 
     major, minor = count.keys()
+    # set_trace()
     for u in count.keys():
-        # if u == minor:
-        # newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
+        if u == minor:
+            try:
+                newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
+            except:
+                pass
         if u == major:
             newCells.extend(cull([r for r in data.as_matrix() if r[-1] == u]))
         else:

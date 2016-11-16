@@ -14,6 +14,7 @@ except ImportError:
 import json
 from StringIO import StringIO
 import prettytable
+from pdb import set_trace
 
 __root__ = os.path.join(os.getcwd().split('HDP')[0], 'HDP')
 if __root__ not in sys.path:
@@ -25,24 +26,29 @@ Some awesome utility functions used everywhere
 
 
 def stringify_pandas(pd):
-    output = StringIO();
-    pd.to_csv(output);
-    output.seek(0);
+    """
+
+    :param pd: A Dataframe
+    :return:
+    """
+    output = StringIO()
+    pd.to_csv(output)
+
     pt = prettytable.from_csv(output)
-    return pt
+    print(pt)
 
 
-def print_pandas(pd, op="text"):
-    # if op.lower() is 'text':
-    #     output = StringIO()
-    #     pd.to_csv(output)
-    #     output.seek(0)
-    #     pt = prettytable.from_csv(output)
-    #     print(pt)
-    prefix = "\\begin{figure}\n\\centering\n\\resizebox{\\textwidth}{!}{"
+def print_pandas(pd):
+    """
+    Prints a dataframe as latex
+    :param pd: A Dataframe
+    :return:
+    """
+
+    prefix = "\\begin{figure}[hp!]\n\\centering\n\\resizebox{\\textwidth}{!}{"
     postfix = "}\n\\end{figure}"
     body = pd.to_latex()
-    print(prefix+body+postfix)
+    print(prefix + body + postfix)
 
 
 def list2dataframe(lst):
@@ -85,12 +91,19 @@ def flatten(x):
     return result
 
 
-def df_norm(dframe, type="min_max"):
+def df_norm(dframe, type="normal"):
     """ Normalize a dataframe"""
+    col = dframe.columns
+    bugs = dframe[dframe.columns[-1]]
     if type == "min_max":
-        return (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
+        dframe = (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
+        dframe["$<bug"] = bugs
+        return dframe[col]
+
     if type == "normal":
-        return (dframe - dframe.mean()) / dframe.std()
+        dframe = (dframe - dframe.mean()) / dframe.std()
+        dframe["$<bug"] = bugs
+        return dframe[col]
 
 
 def explore(dir):
@@ -146,3 +159,20 @@ def pairs(D):
     for i in keys[1:]:
         yield D[last], D[i]
         last = i
+
+
+def _test_pretty_print():
+    import pandas as pd
+    from pdb import set_trace
+    aa = [[1, 2, 3, 4],
+          [1, 2, 3, 4],
+          [5, 6, 7, 8],
+          [5, 6, 7, 8],
+          ]
+    aa = pd.DataFrame(aa)
+    stringify_pandas(aa)
+    set_trace()
+
+
+if __name__ == "__main__":
+    _test_pretty_print()

@@ -50,13 +50,13 @@ def hedges_g_2(dist, small=0.38):
         See: https://en.wikipedia.org/wiki/Effect_size#Hedges.27_g
     """
 
-    n1, n2 = 4, 4
+    n1, n2 = 8, 8
     correct_bias = (1 - 3 / (4 * (n1 + n2) - 9))
 
     def hg(m1, m2, s1, s2):
         s = np.sqrt(((n1 - 1) * s1 ** 2 + (n2 - 1) * s2 ** 2) / (n1 + n2 - 2))
         g_score = correct_bias * (m1 - m2) / (s + 1e-32)  # Adding 1e-32 handles 0 std
-        return str(round(-g_score, 2)) if abs(g_score) >= small else " "
+        return int(-g_score) if abs(g_score) >= small else " "
 
     all = []
 
@@ -69,29 +69,29 @@ def hedges_g_2(dist, small=0.38):
 
         all.append([id,  # Name
                     # TCA+
-                    round(stats.values[0], 2),  # Pd (mean), Pd(std)
-                    round(stats.values[2], 2),  # Pf (mean), Pf(std)
-                    round(stats.values[4], 2),  # G (mean), G(std)
+                    int(stats.values[0]),  # Pd (mean), Pd(std)
+                    int(stats.values[2]),  # Pf (mean), Pf(std)
+                    int(stats.values[4]),  # G (mean), G(std)
                     # Bellwether
-                    round(stats.values[6], 2),  # Pd (mean), Pd(std)
-                    round(stats.values[8], 2),  # Pf (mean), Pf(std)
-                    round(stats.values[11], 2),  # G (mean), G(std)
+                    int(stats.values[6]),  # Pd (mean), Pd(std)
+                    int(stats.values[8]),  # Pf (mean), Pf(std)
+                    int(stats.values[10]),  # G (mean), G(std)
                     # Hedges' G (Pd),  Hedges' G (Pf),  Hedges' G (G)
                     pd_hg, pf_hg, g_hg])
 
     return pd.DataFrame(all, columns=["Name",
                                       # TCA+
-                                      "Pd (mean)",
-                                      "Pf (mean)",
-                                      "G (mean)",
+                                      "Pd (TCA+)",
+                                      "Pf (TCA+)",
+                                      "G  (TCA+)",
                                       # Bellwether
-                                      "Pd (mean)",
-                                      "Pf (mean)",
-                                      "G (mean)",
+                                      "Pd (Bellw)",
+                                      "Pf (Bellw)",
+                                      "G  (Bellw)",
                                       # Hedge's G
-                                      "Pd (Hedges's G)",
-                                      "Pf (Hedges's G)",
-                                      "G (Hedges's G)"])
+                                      "Pd (H's G)",
+                                      "Pf (H's G)",
+                                      "G  (H's G)"])
 
 
 def _test_effect_size():

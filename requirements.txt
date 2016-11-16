@@ -10,5 +10,8 @@ networkx
 texttable
 oct2py
 cvxopt
-astropy
 prettytable
+pillow
+pygraphviz
+javabridge
+python-weka-wrapper

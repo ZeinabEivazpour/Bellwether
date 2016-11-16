@@ -2,6 +2,7 @@ from __future__ import division
 import numpy as np
 from pdb import set_trace
 
+
 class Counter:
     def __init__(self, before, after, indx):
         self.indx = indx
@@ -27,10 +28,10 @@ class Counter:
             Prec = self.TP / (self.TP + self.FP)
             # Acc = (self.TP + self.TN) / (self.TP + self.FN + self.TN + self.FP)
             F1 = 2 * (Prec * Sen) / (Prec + Sen)
-            G = np.sqrt(Sen*Spec)
+            G = np.sqrt(Sen * Spec)
             # ED = np.sqrt(0.6*(1-Sen)**2+0.3*(1-Spec)**2)
-            ED = 1 / ((0.7 / Sen) + (0.3 / Spec))
-            return Sen*100, (1-Spec)*100, Prec*100, Sen*100, F1*100, ED*100, G*100
+            ED = 2 * Sen * Spec / (Sen + Spec)
+            return Sen * 100, (1 - Spec) * 100, Prec * 100, Sen * 100, F1 * 100, ED * 100, G * 100
         except ZeroDivisionError:
             return 0, 0, 0, 0, 0, 0, 0
 

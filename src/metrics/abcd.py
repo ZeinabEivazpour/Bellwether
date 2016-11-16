@@ -25,7 +25,6 @@ def abcd(actual, predicted, as_percent=True):
 
     actual = stringify(actual)
     predicted = stringify(predicted)
-
     c_mtx = confusion_matrix(actual, predicted)
 
     "Probablity of Detection: Pd"
@@ -57,7 +56,8 @@ def abcd(actual, predicted, as_percent=True):
         f1 = 0
 
     ed = np.sqrt(0.7 * (1 - p_d) ** 2 + 0.3 * p_f ** 2)
-    e_d = 1 / ((0.7 / p_d) + (0.3 / (1 - p_f)))
+    # e_d = 1 / ((0.5 / p_d) + (0.5 / (1 - p_f)))
+    e_d = 2 * p_d * (1 - p_f) / (1 + p_d - p_f)
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
 
     if as_percent is True:

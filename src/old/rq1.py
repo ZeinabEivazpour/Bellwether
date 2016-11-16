@@ -11,7 +11,7 @@ from logo import logo
 from methods1 import *
 from stats import ABCD
 import pandas
-
+from py_weka.classifier import classify
 root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
@@ -86,21 +86,20 @@ class simulate:
             self.train = createTbl(file, isBin=True)
             actual = Bugs(self.test)
             pd, pf, e_d, val = [], [], [], []
-            for _ in xrange(2):
-                predicted = rforest(
+            for _ in xrange(1):
+                predicted = classify(
                     self.train,
-                    self.test,
-                    tunings=self.param)
+                    self.test)#,
+                    # tunings=self.param)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
                 e.append([p_buggy[1].stats()[-1]])
 
                 pd.append(p_buggy[1].stats()[0])
                 pf.append(p_buggy[1].stats()[1])
                 e_d.append(p_buggy[1].stats()[-2])
-
-            stats.append([fname, round(np.mean(pd), 2), round(np.std(pd), 2),
-                          round(np.mean(pf), 2), round(np.std(pf), 2),
-                          round(np.mean(e_d), 2), round(np.std(e_d), 2)])
+            stats.append([fname, int(np.mean(pd)), int(np.std(pd)),
+                          int(np.mean(pf)), int(np.std(pf)),
+                          int(np.mean(e_d)), round(np.std(e_d))])
 
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),
                                  columns=["Name", "Pd (Mean)", "Pd (Std)", "Pf (Mean)", "Pf (Std)", "G (Mean)",

@@ -34,7 +34,7 @@ def Bugs(tbl):
     return cells
 
 
-def rforest(train, test, tunings=None, picksome=False):
+def rforest(train, test, smote=True, tunings=None, picksome=False):
     """ Random Forest
 
     :param train:   Thing object created using function createTbl
@@ -46,7 +46,8 @@ def rforest(train, test, tunings=None, picksome=False):
 
     assert type(train) is Thing, "Train is not a Thing object"
     assert type(test) is Thing, "Test is not a Thing object"
-    train = SMOTE(train, atleast=50, atmost=101, resample=True)
+    if smote:
+        train = SMOTE(train, atleast=50, atmost=101, resample=True)
     if not tunings:
         clf = RandomForestClassifier(n_estimators=100, random_state=1)
     else:

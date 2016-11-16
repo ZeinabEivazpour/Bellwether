@@ -8,7 +8,8 @@ if root not in sys.path:
     sys.path.append(root)
 
 import warnings
-from prediction.model import rf_model
+from prediction.model import rf_model, rf_model0
+from py_weka.classifier import classify
 from utils import *
 from metrics.abcd import abcd
 from mklaren.kernel.kinterface import Kinterface
@@ -66,19 +67,41 @@ def map_transform(src, tgt, n_components=5):
     return x0, y0
 
 
-def predict_defects(train, test):
+def predict_defects(train, test, weka=True):
     """
 
     :param train:
+    :type train:
     :param test:
+    :type test:
+    :param weka:
+    :type weka:
     :return:
     """
-    # Binarize data
-    train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
-    test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
 
     actual = test[test.columns[-1]].values.tolist()
-    predicted = rf_model(train, test)
+    actual = [1 if act == "T" else 0 for act in actual]
+
+    if weka:
+        train.to_csv('./tmp/train.csv', index=False)
+        test.to_csv('./tmp/test.csv', index=False)
+
+        predicted = classify(train=os.path.abspath('./tmp/train.csv'),
+                             test=os.path.abspath('./tmp/test.csv'),
+                             name="rf")
+
+        # set_trace()
+
+        predicted = [1 if p > 0.7 else 0 for p in predicted]
+
+        # Remove temporary csv files to avoid conflicts
+        os.remove('./tmp/train.csv')
+        os.remove('./tmp/test.csv')
+    else:
+        # Binarize data
+        train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
+        test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
+        predicted = rf_model0(train, test)
 
     return actual, predicted
 
@@ -153,6 +176,7 @@ def smart_norm(src, tgt, c_s, c_t):
         else:
             return df_norm(src, type="normal"), df_norm(tgt, type="normal")
     except:
+        set_trace()
         return src, tgt
 
 
@@ -179,7 +203,7 @@ def tca_plus(source, target, n_rep=12):
 
     for tgt_name, tgt_path in target.iteritems():
         stats = []
-        print("{}\n".format(tgt_name[0].upper()+tgt_name[1:]))
+        print("{}  \r".format(tgt_name[0].upper() + tgt_name[1:]))
         val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
@@ -187,6 +211,7 @@ def tca_plus(source, target, n_rep=12):
                 tgt = list2dataframe(tgt_path.data)
                 pd, pf, g = [], [], []
                 dcv_src, dcv_tgt = get_dcv(src, tgt)
+
                 for _ in xrange(n_rep):
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)
@@ -206,10 +231,11 @@ def tca_plus(source, target, n_rep=12):
                               round(np.mean(pf), 2), round(np.std(pf), 2),
                               round(np.mean(g), 2), round(np.std(g), 2)])
 
-        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True)  # Sort by G Score
-                                 , columns=["Name", "Pd (Mean)", "Pd (Std)",
-                                            "Pf (Mean)", "Pf (Std)",
-                                            "G (Mean)", "G (Std)"])
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
+                                 columns=["Name", "Pd (Mean)", "Pd (Std)",
+                                          "Pf (Mean)", "Pf (Std)",
+                                          "G (Mean)", "G (Std)"])
+        set_trace()
         result.update({tgt_name: stats})
     return result
 
@@ -218,7 +244,7 @@ def tca_jur():
     from data.handler import get_all_projects
     all = get_all_projects()
     apache = all["Apache"]
-    return tca_plus(apache, apache, n_rep=2)
+    return tca_plus(apache, apache, n_rep=8)
 
 
 if __name__ == "__main__":

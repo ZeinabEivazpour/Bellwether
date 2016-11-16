@@ -9,6 +9,7 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
+from StringIO import StringIO
 from old.Prediction import rforest
 from data.handler import *
 
@@ -28,13 +29,21 @@ def df2thing(dframe):
     os.remove('temp.csv')
     return new_thing
 
+# def df2thing(dframe):
+#     output = StringIO()
+#     dframe.to_csv(output)
+#     output.seek(0)
+#     set_trace()
+#     new_thing = createTbl([output], isBin=True)
+#     return new_thing
+
 
 def rf_model(source, target):
     clf = RandomForestClassifier(n_estimators=100, random_state=1)
     # Binarize source
     # source.loc[source[source.columns[-1]] > 0, source.columns[-1]] = 1
     # set_trace()
-    # source = SMOTE(source)
+    source = SMOTE(source)
     features = source.columns[:-1]
     klass = source[source.columns[-1]]
     clf.fit(source[features], klass)
@@ -42,10 +51,10 @@ def rf_model(source, target):
     return preds
 
 
-def rf_model0(source, target, name):
+def rf_model0(source, target):
     train = df2thing(source)
     test = df2thing(target)
-    return rforest(train, test, tunings=getTunings(name))
+    return rforest(train, test, smote=False)
 
 
 #
