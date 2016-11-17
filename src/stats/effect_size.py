@@ -28,7 +28,7 @@ def cohens_d(dist1, dist2, cutoffs=None):
     s = pooled_sd(dist1, dist2)
     m1 = np.mean(dist1)
     m2 = np.mean(dist2)
-    d = np.abs(m1 - m2) / (s + 1e-32)
+    d = np.abs(m1 - m2) / (s + 0.1)
     return round(d, 2), d < cutoffs["S"]
 
 
@@ -56,7 +56,13 @@ def hedges_g_2(dist, small=0.38):
     def hg(m1, m2, s1, s2):
         s = np.sqrt(((n1 - 1) * s1 ** 2 + (n2 - 1) * s2 ** 2) / (n1 + n2 - 2))
         g_score = correct_bias * (m1 - m2) / (s + 1e-32)  # Adding 1e-32 handles 0 std
-        return int(-g_score) if abs(g_score) >= small else " "
+        if g_score > 0 and g_score >= small:
+            label = "H"
+        elif g_score < 0 and abs(g_score) >= small:
+            label = "L"
+        else:
+            label = "  "
+        return label
 
     all = []
 

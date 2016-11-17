@@ -1,4 +1,5 @@
 from __future__ import print_function, division
+
 import os
 import sys
 
@@ -6,43 +7,42 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-from utils import list2dataframe
-import numpy as np
 import pandas as pd
 import weka.core.jvm as jvm
+from utils import list2dataframe
 from weka.classifiers import Classifier
 import weka.core.converters as converters
-from weka.experiments import SimpleCrossValidationExperiment, SimpleRandomSplitExperiment, Tester, ResultMatrix
-from pdb import set_trace
-from cStringIO import StringIO
 from random import uniform, randint, sample, choice, random as rand
+from weka.experiments import SimpleCrossValidationExperiment, Tester, ResultMatrix
+from pdb import set_trace
+
+default_opt = [u'-P', u'50', u'-I', u'500', u'-M', u'6.0', u'-V', u'0.01']
 
 
 class CONF:
-    def __init__(self):
-        pass
-
-    POP = 5
-    ITER = 100
+    POP = 10
+    ITER = 10
     LIVES = 5
     XOVER = 0.75
     WEIGHT = 0.5
 
 
-def __weka_instance(fname):
+def weka_instance(fname):
     if isinstance(fname, list):
         dframe = list2dataframe(fname)
-    else:
+    elif isinstance(fname, pd.core.frame.DataFrame):
+        dframe = fname
+    elif os.path.isfile(fname):
         dframe = pd.read_csv(fname)
 
-    output = os.path.abspath("./csvbin/dframe.csv")
+    output = os.path.abspath(os.path.join(root, "csvbin/dframe.csv"))
     dframe.to_csv(output, index=False)
     return output
 
 
 def tune(data, config=CONF, range_limits=None):
     range_limits = {
-        "-P": (10, 1000),  # Size of each bag, as a percentage of the training set size. (default 100)
+        "-P": (1, 100),  # Size of each bag, as a percentage of the training set size. (default 100)
         "-I": (10, 1000),  # Number of Iterations
         "-M": (1, 10),  # Minimum samples per leaf
         "-V": (1e-3, 0.1),  # Variance per split
@@ -60,16 +60,21 @@ def tune(data, config=CONF, range_limits=None):
     }
 
     def build_classifier(opt=None):
-        opt = [u'-P', u'100', u'-I', u'100', u'-M', u'1.0', u'-V', u'0.001'] if opt is None else opt
+        opt = default_opt if opt is None else opt
         cls = Classifier(classname="weka.classifiers.trees.RandomForest",
                          options=opt)
         return cls
 
-    def eval_results(opt=None):
+    def eval_using_crossval(opt=None, r=3, f=3):
         """
-        Evaluate performance of a given set of configurations
+        Evaluate performance of a given set of configurations using crossval
 
-        :param opt: options as an argument list
+        :parameter opt: options as an argument list
+        :type opt: list (or str)
+        :parameter r: runs
+        :type r: int
+        :parameter f: folds
+        :type f: int
         :return: Area Under The Curve
         """
 
@@ -82,7 +87,7 @@ def tune(data, config=CONF, range_limits=None):
                 os.remove(outfile)
 
             classifier = build_classifier(opt)
-            exp = SimpleCrossValidationExperiment(classification=True, runs=1, folds=5, datasets=[data],
+            exp = SimpleCrossValidationExperiment(classification=True, runs=r, folds=f, datasets=[data],
                                                   classifiers=[classifier], result=outfile)
             exp.setup()
             exp.run()
@@ -102,7 +107,7 @@ def tune(data, config=CONF, range_limits=None):
             # Return Area-Under-Curve Score
             return float(str(tester.multi_resultset_full(0, comparison_col)).split('\n')[2].split()[1])
 
-        except:
+        except Exception as e:
             pass
 
     def format_options(opt_dict):
@@ -131,7 +136,7 @@ def tune(data, config=CONF, range_limits=None):
         return [format_options(rand_pop()) for _ in xrange(config.POP)]
 
     def evaluate_candidate(candidate):
-        return eval_results(opt=candidate)
+        return eval_using_crossval(opt=candidate)
 
     def get_best_solution(population):
         return sorted(population, key=lambda member: evaluate_candidate(member), reverse=True)[0]
@@ -173,7 +178,7 @@ def tune(data, config=CONF, range_limits=None):
     s_best = get_best_solution(population)
     lives = CONF.LIVES
     for _ in xrange(CONF.ITER):
-        if lives<=0:
+        if lives <= 0:
             break
 
         new_population = []
@@ -181,7 +186,7 @@ def tune(data, config=CONF, range_limits=None):
         for candidate in population:
             new_candidate = new_sample(candidate, population)
 
-            if eval_results(new_candidate) >= eval_results(candidate):
+            if eval_using_crossval(new_candidate) >= eval_using_crossval(candidate):
                 new_population.append(new_candidate)
             else:
                 new_population.append(candidate)
@@ -191,8 +196,6 @@ def tune(data, config=CONF, range_limits=None):
             s_best = c_best
             lives += 1
 
-        print("Lives: {} | Best: {}".format(lives, s_best))
-
     return s_best
 
 
@@ -200,9 +203,8 @@ def __test_tune():
     data_dir = os.path.abspath("../../data/Jureczko/ant/")
     data = [os.path.join(data_dir, "ant-1.{}.csv".format(i)) for i in xrange(3, 7)]
     jvm.start()
-    data = __weka_instance(data)
+    data = weka_instance(data)
     tuned_opt = tune(data)
-    set_trace()
     jvm.stop()
     return
 

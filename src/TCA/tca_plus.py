@@ -8,19 +8,18 @@ if root not in sys.path:
     sys.path.append(root)
 
 import warnings
-from prediction.model import rf_model, rf_model0
+from prediction.model import rf_model0
 from py_weka.classifier import classify
 from utils import *
 from metrics.abcd import abcd
+from metrics.recall_vs_loc import get_curve
 from mklaren.kernel.kinterface import Kinterface
 from mklaren.kernel.kernel import *
 from mklaren.projection.icd import ICD
 from pdb import set_trace
-from texttable import Texttable
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import pandas
-from time import time
 
 with warnings.catch_warnings():
     # Shut those god damn warnings up!
@@ -67,7 +66,7 @@ def map_transform(src, tgt, n_components=5):
     return x0, y0
 
 
-def predict_defects(train, test, weka=True):
+def predict_defects(train, test, weka=True, cutoff=0.6):
     """
 
     :param train:
@@ -83,27 +82,26 @@ def predict_defects(train, test, weka=True):
     actual = [1 if act == "T" else 0 for act in actual]
 
     if weka:
-        train.to_csv('./tmp/train.csv', index=False)
-        test.to_csv('./tmp/test.csv', index=False)
+        train.to_csv(root+'/TCA/tmp/train.csv', index=False)
+        test.to_csv(root+'/TCA/tmp/test.csv', index=False)
 
-        predicted = classify(train=os.path.abspath('./tmp/train.csv'),
-                             test=os.path.abspath('./tmp/test.csv'),
-                             name="rf")
-
+        __, distr = classify(train=os.path.abspath(root+'/TCA/tmp/train.csv'),
+                             test=os.path.abspath(root+'/TCA/tmp/test.csv'),
+                             name="rf", tuning=False)
         # set_trace()
-
-        predicted = [1 if p > 0.7 else 0 for p in predicted]
+        predicted = [1 if d > cutoff else 0 for d in distr]
 
         # Remove temporary csv files to avoid conflicts
-        os.remove('./tmp/train.csv')
-        os.remove('./tmp/test.csv')
+        os.remove(root+'/TCA/tmp/train.csv')
+        os.remove(root+'/TCA/tmp/test.csv')
+
     else:
         # Binarize data
         train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
         test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
         predicted = rf_model0(train, test)
 
-    return actual, predicted
+    return actual, predicted, distr
 
 
 def get_dcv(src, tgt):
@@ -153,7 +151,7 @@ def smart_norm(src, tgt, c_s, c_t):
     :param c_t:
     :return:
     """
-    try:  ## !!GUARD: PLEASE REMOVE AFTER DEBUGGING!!
+    try:  # !!GUARD: PLEASE REMOVE AFTER DEBUGGING!!
         # Rule 1
         if sim(c_s, c_t, e=0) == "S" and sim(c_s, c_t, e=-2) == "S":
             return src, tgt
@@ -180,17 +178,6 @@ def smart_norm(src, tgt, c_s, c_t):
         return src, tgt
 
 
-def pretty_print_stats(stats):
-    table_rows = [["Name", "Pd  ", "Pf  ", "G   "]]
-    table_rows.extend(sorted(stats, key=lambda F: float(F[-1]), reverse=True))
-    table = Texttable()
-    table.set_cols_align(["l", "l", 'l', "l"])
-    table.set_cols_valign(["m", "m", "m", "m"])
-    table.set_cols_dtype(['t', 't', 't', 't'])
-    table.add_rows(table_rows)
-    print(table.draw(), "\n")
-
-
 def tca_plus(source, target, n_rep=12):
     """
     TCA: Transfer Component Analysis
@@ -209,33 +196,33 @@ def tca_plus(source, target, n_rep=12):
             if not src_name == tgt_name:
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
-                pd, pf, g = [], [], []
+                pd, pf, g, auc = [], [], [], []
                 dcv_src, dcv_tgt = get_dcv(src, tgt)
 
                 for _ in xrange(n_rep):
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)
-                    actual, predicted = predict_defects(train=_train, test=__test)
-                    p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted)
-                    name = src_name[:4] if len(src_name) <= 4 else src_name + (4 - len(src_name)) * " "
-                    val.append([name,
-                                "%0.2f" % p_d,
-                                "%0.2f" % p_f,
-                                "%0.2f" % e_d])
+                    # for k in np.arange(0.1,1,0.1):
+                    actual, predicted, distribution = predict_defects(train=_train, test=__test)
+                    auc_rc_loc = get_curve(tgt, distribution)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, au_roc = abcd(actual, predicted, distribution)
 
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
+                    auc.append(au_roc)
 
-                stats.append([src_name, round(np.mean(pd), 2), round(np.std(pd)),
-                              round(np.mean(pf), 2), round(np.std(pf), 2),
-                              round(np.mean(g), 2), round(np.std(g), 2)])
+                stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
+                              int(np.mean(pf)), int(np.std(pf)),
+                              int(np.mean(auc)), int(np.std(auc)),
+                              int(np.mean(g)), int(np.std(g))])
 
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
                                           "Pf (Mean)", "Pf (Std)",
+                                          "AUC (Mean)", "AUC (Std)",
                                           "G (Mean)", "G (Std)"])
-        set_trace()
+        # set_trace()
         result.update({tgt_name: stats})
     return result
 
@@ -244,7 +231,7 @@ def tca_jur():
     from data.handler import get_all_projects
     all = get_all_projects()
     apache = all["Apache"]
-    return tca_plus(apache, apache, n_rep=8)
+    return tca_plus(apache, apache, n_rep=10)
 
 
 if __name__ == "__main__":

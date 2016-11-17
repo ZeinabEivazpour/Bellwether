@@ -1,12 +1,15 @@
 from __future__ import print_function, division
-import weka.core.jvm as jvm
-import weka.core.converters as converters
-from weka.classifiers import Classifier
-from weka.filters import Filter
-import pandas as pd
-from pdb import set_trace
+
 import os
-from smote import SMOTE
+from pdb import set_trace
+from time import time
+
+import pandas as pd
+import weka.core.converters as converters
+import weka.core.jvm as jvm
+from weka.classifiers import Classifier
+from utils import list2dataframe
+from tuner.devol import tune, default_opt, weka_instance
 
 classifiers = {
     "rf": "weka.classifiers.trees.RandomForest",
@@ -32,19 +35,24 @@ def csv_as_ndarray(fname):
 def get_actuals(fname):
     if isinstance(fname, str):
         dframe = pd.read_csv(fname)
+    if isinstance(fname, list):
+        dframe = list2dataframe(fname)
     elif isinstance(fname, pd.core.frame.DataFrame):
         dframe = fname
 
     return dframe[dframe.columns[-1]].values.tolist()
 
 
-def classify(train, test, name="RF", resamp=True):
+def classify(train, test, name="RF", tuning=False):
     jvm.start()
 
-    if os.path.isfile(train) and os.path.isfile(test):
-        # if resamp:
-        #     train = SMOTE(train, rseed=1, percentage=100, K=5)
+    if isinstance(train, list) and isinstance(test, list):
+        train = weka_instance(train)
+        trn_data = converters.load_any_file(train)
+        test = weka_instance(test)
+        tst_data = converters.load_any_file(test)
 
+    elif os.path.isfile(train) and os.path.isfile(test):
         trn_data = converters.load_any_file(train)
         tst_data = converters.load_any_file(test)
 
@@ -58,21 +66,23 @@ def classify(train, test, name="RF", resamp=True):
     trn_data.class_is_last()
     tst_data.class_is_last()
 
-    # filt = Filter(classname='weka.filters.supervised.instance.SMOTE',
-    #               options=["-C", "0", "-K", "5", "-P", "100.0", "-S", "42"])
+    # t = time()
+    if tuning:
+        opt = tune(train)
+    else:
+        opt = default_opt
+    # print("Time to tune: {} seconds".format(time() - t))
 
-    # set_trace()
-    cls = Classifier(classname=classifiers[name.lower()])
-
-    set_trace()
+    cls = Classifier(classname=classifiers[name.lower()], options=opt)
 
     cls.build_classifier(trn_data)
 
+    distr = [cls.distribution_for_instance(inst)[1] for inst in tst_data]
     preds = [cls.classify_instance(inst) for inst in tst_data]
 
     jvm.stop()
 
-    return preds
+    return preds, distr
 
 
 def __test_learners():

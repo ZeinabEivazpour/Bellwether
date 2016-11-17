@@ -11,7 +11,7 @@ from logo import logo
 from methods1 import *
 from stats import ABCD
 import pandas
-from py_weka.classifier import classify
+from py_weka import classifier
 root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
@@ -28,19 +28,20 @@ class data:
 
     def __init__(self, dataName='ant', type='jur'):
         if type == 'jur':
-            dir = "./Data/Jureczko"
+            dir = "./data/Jureczko"
         elif type == 'nasa':
-            dir = "./Data/mccabe"
+            dir = "./data/mccabe"
         elif type == 'aeeem':
-            dir = "./Data/AEEEM"
+            dir = "./data/AEEEM"
         elif type == "relink":
-            dir = './Data/Relink'
+            dir = './data/Relink'
         elif type == 'other':
-            dir = './Data/other/'
-        try:
-            projects = [Name for _, Name, __ in walk(dir)][0]
-        except:
-            set_trace()
+            dir = './data/other/'
+        # try:
+        projects = [Name for _, Name, __ in walk(dir)][0]
+        # print(projects)
+        # except:
+        #     set_trace()
         numData = len(projects)  # Number of data
         one, two = explore(dir)
         data = [one[i] + two[i] for i in xrange(len(one))]
@@ -68,11 +69,11 @@ class simulate:
     def incrUpdates(self):
         """When to update a reference set"""
         src = data(dataName=self.file, type=self.type)
-        self.test = createTbl(src.test, isBin=True)
+        # self.test = createTbl(src.test, isBin=True)
 
     def bellwether(self):
         src = data(dataName=self.file, type=self.type)
-        self.test = createTbl(src.test, isBin=True)
+        # self.test = createTbl(src.test, isBin=True)
         if len(src.train) == 1:
             train = src.train[0]
         else:
@@ -83,14 +84,15 @@ class simulate:
             fname = file[0].split('/')[-2]
             e = []
             header.append(fname)
-            self.train = createTbl(file, isBin=True)
-            actual = Bugs(self.test)
+            # self.train = createTbl(file, isBin=True)
+            actual = [1 if act == "T" else 0 for act in classifier.get_actuals(src.test)]
             pd, pf, e_d, val = [], [], [], []
-            for _ in xrange(1):
-                predicted = classify(
-                    self.train,
-                    self.test)#,
-                    # tunings=self.param)
+            for _ in xrange(10):
+                # set_trace()
+                __, distribution = classifier.classify(train=file, test=src.test)
+
+                predicted = [1 if d > 0.6 else 0 for d in distribution]
+                # set_trace()
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
                 e.append([p_buggy[1].stats()[-1]])
 
@@ -104,6 +106,7 @@ class simulate:
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),
                                  columns=["Name", "Pd (Mean)", "Pd (Std)", "Pf (Mean)", "Pf (Std)", "G (Mean)",
                                           "G (Std)"])
+        # set_trace()
 
         return stats
 
