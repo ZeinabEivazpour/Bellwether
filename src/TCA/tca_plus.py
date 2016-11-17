@@ -20,6 +20,7 @@ from pdb import set_trace
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import pandas
+# from plot.effort_plot import effort_plot
 
 with warnings.catch_warnings():
     # Shut those god damn warnings up!
@@ -82,18 +83,18 @@ def predict_defects(train, test, weka=True, cutoff=0.6):
     actual = [1 if act == "T" else 0 for act in actual]
 
     if weka:
-        train.to_csv(root+'/TCA/tmp/train.csv', index=False)
-        test.to_csv(root+'/TCA/tmp/test.csv', index=False)
+        train.to_csv(root + '/TCA/tmp/train.csv', index=False)
+        test.to_csv(root + '/TCA/tmp/test.csv', index=False)
 
-        __, distr = classify(train=os.path.abspath(root+'/TCA/tmp/train.csv'),
-                             test=os.path.abspath(root+'/TCA/tmp/test.csv'),
+        __, distr = classify(train=os.path.abspath(root + '/TCA/tmp/train.csv'),
+                             test=os.path.abspath(root + '/TCA/tmp/test.csv'),
                              name="rf", tuning=False)
         # set_trace()
         predicted = [1 if d > cutoff else 0 for d in distr]
 
         # Remove temporary csv files to avoid conflicts
-        os.remove(root+'/TCA/tmp/train.csv')
-        os.remove(root+'/TCA/tmp/test.csv')
+        os.remove(root + '/TCA/tmp/train.csv')
+        os.remove(root + '/TCA/tmp/test.csv')
 
     else:
         # Binarize data
@@ -200,17 +201,24 @@ def tca_plus(source, target, n_rep=12):
                 dcv_src, dcv_tgt = get_dcv(src, tgt)
 
                 for _ in xrange(n_rep):
+                    recall, loc = None, None
                     norm_src, norm_tgt = smart_norm(src, tgt, dcv_src, dcv_tgt)
                     _train, __test = map_transform(norm_src, norm_tgt)
                     # for k in np.arange(0.1,1,0.1):
                     actual, predicted, distribution = predict_defects(train=_train, test=__test)
-                    auc_rc_loc = get_curve(tgt, distribution)
+                    loc = tgt["$loc"].values
+                    loc = loc * 100 / np.max(loc)
+                    recall, loc = get_curve(loc, actual, predicted)
+                    effort_plot(recall, loc, #save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
+                                save_name=src_name)
                     p_d, p_f, p_r, rc, f_1, e_d, _g, au_roc = abcd(actual, predicted, distribution)
 
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
                     auc.append(au_roc)
+
+                    # set_trace()
 
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
@@ -222,7 +230,7 @@ def tca_plus(source, target, n_rep=12):
                                           "Pf (Mean)", "Pf (Std)",
                                           "AUC (Mean)", "AUC (Std)",
                                           "G (Mean)", "G (Std)"])
-        # set_trace()
+        set_trace()
         result.update({tgt_name: stats})
     return result
 
@@ -231,8 +239,30 @@ def tca_jur():
     from data.handler import get_all_projects
     all = get_all_projects()
     apache = all["Apache"]
-    return tca_plus(apache, apache, n_rep=10)
+    return tca_plus(apache, apache, n_rep=1)
 
+
+def effort_plot(recall, loc, save_dest="./test", save_name="test"):
+    # loc = np.array(loc) * 100 / np.max(loc)
+    import matplotlib.pyplot as plt
+    import numpy as np
+    loc_r, y_r = np.arange(0, 110, 10), np.arange(0, 110, 10)
+    # plt.scatter(loc, recall, marker='+', c="k", linewidths=0.01)
+    plt.plot(loc, recall, c="k")
+    plt.plot(loc_r, y_r, c="r")
+    plt.xlabel('LOC (%)')
+    plt.ylabel('Recall (%)')
+    plt.xlim([0, 100])
+    plt.ylim([0, 100])
+    plt.title(save_name)
+    plt.grid(True)
+    #
+    # if not os.path.exists(save_dest):
+    #     os.mkdir(save_dest)
+
+    plt.savefig("{}/{}.jpg".format(save_dest, save_name), transparent=False)
+    set_trace()
+    return
 
 if __name__ == "__main__":
     tca_jur()
