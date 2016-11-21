@@ -20,6 +20,8 @@ from pdb import set_trace
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import pandas
+from plot.effort_plot import effort_plot
+
 # from plot.effort_plot import effort_plot
 
 with warnings.catch_warnings():
@@ -208,30 +210,31 @@ def tca_plus(source, target, n_rep=12):
                     actual, predicted, distribution = predict_defects(train=_train, test=__test)
                     loc = tgt["$loc"].values
                     loc = loc * 100 / np.max(loc)
-                    recall, loc = get_curve(loc, actual, predicted)
-                    effort_plot(recall, loc, #save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
+                    recall, loc, au_roc = get_curve(loc, actual, predicted)
+                    effort_plot(recall, loc,
+                                save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
                                 save_name=src_name)
-                    p_d, p_f, p_r, rc, f_1, e_d, _g, au_roc = abcd(actual, predicted, distribution)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, _ = abcd(actual, predicted, distribution)
 
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
-                    auc.append(au_roc)
+                    auc.append(int(au_roc))
 
                     # set_trace()
 
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
-                              int(np.mean(auc)), int(np.std(auc)),
-                              int(np.mean(g)), int(np.std(g))])
+                              int(np.mean(auc)), int(np.std(auc))])  # ,
+                # int(np.mean(g)), int(np.std(g))])
 
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
                                           "Pf (Mean)", "Pf (Std)",
-                                          "AUC (Mean)", "AUC (Std)",
-                                          "G (Mean)", "G (Std)"])
-        set_trace()
+                                          "AUC (Mean)", "AUC (Std)"])  # ,
+        # "G (Mean)", "G (Std)"])
         result.update({tgt_name: stats})
+    # set_trace()
     return result
 
 
@@ -241,28 +244,6 @@ def tca_jur():
     apache = all["Apache"]
     return tca_plus(apache, apache, n_rep=1)
 
-
-def effort_plot(recall, loc, save_dest="./test", save_name="test"):
-    # loc = np.array(loc) * 100 / np.max(loc)
-    import matplotlib.pyplot as plt
-    import numpy as np
-    loc_r, y_r = np.arange(0, 110, 10), np.arange(0, 110, 10)
-    # plt.scatter(loc, recall, marker='+', c="k", linewidths=0.01)
-    plt.plot(loc, recall, c="k")
-    plt.plot(loc_r, y_r, c="r")
-    plt.xlabel('LOC (%)')
-    plt.ylabel('Recall (%)')
-    plt.xlim([0, 100])
-    plt.ylim([0, 100])
-    plt.title(save_name)
-    plt.grid(True)
-    #
-    # if not os.path.exists(save_dest):
-    #     os.mkdir(save_dest)
-
-    plt.savefig("{}/{}.jpg".format(save_dest, save_name), transparent=False)
-    set_trace()
-    return
 
 if __name__ == "__main__":
     tca_jur()

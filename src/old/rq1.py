@@ -11,11 +11,13 @@ from logo import logo
 from methods1 import *
 from stats import ABCD
 import pandas
+from metrics.recall_vs_loc import get_curve
 from py_weka import classifier
 root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
-
+from utils import list2dataframe
+from plot.effort_plot import effort_plot
 
 def getTunings(fname):
     raw = pd.read_csv(root + '/old/tunings.csv').transpose().values.tolist()
@@ -28,20 +30,17 @@ class data:
 
     def __init__(self, dataName='ant', type='jur'):
         if type == 'jur':
-            dir = "./data/Jureczko"
+            dir = os.path.join(root, "data", "Jureczko")
         elif type == 'nasa':
-            dir = "./data/mccabe"
+            dir = os.path.join(root, "data", "mccabe")
         elif type == 'aeeem':
-            dir = "./data/AEEEM"
+            dir = os.path.join(root, "data", "AEEEM")
         elif type == "relink":
-            dir = './data/Relink'
+            dir = os.path.join(root, "data", "Relink")
         elif type == 'other':
-            dir = './data/other/'
-        # try:
+            dir = os.path.join(root, "data", "other")
+
         projects = [Name for _, Name, __ in walk(dir)][0]
-        # print(projects)
-        # except:
-        #     set_trace()
         numData = len(projects)  # Number of data
         one, two = explore(dir)
         data = [one[i] + two[i] for i in xrange(len(one))]
@@ -86,28 +85,33 @@ class simulate:
             header.append(fname)
             # self.train = createTbl(file, isBin=True)
             actual = [1 if act == "T" else 0 for act in classifier.get_actuals(src.test)]
-            pd, pf, e_d, val = [], [], [], []
-            for _ in xrange(10):
+            pd, pf, auc, val = [], [], [], []
+            for _ in xrange(1):
                 # set_trace()
                 __, distribution = classifier.classify(train=file, test=src.test)
 
-                predicted = [1 if d > 0.6 else 0 for d in distribution]
-                # set_trace()
+                predicted = [1 if d > 0.7 else 0 for d in distribution]
+                test_set = list2dataframe(src.test)
+                actual = [1 if act == "T" else 0 for act in test_set["$<bug"]]
+                loc = test_set["$loc"]
+                loc = loc * 100 / np.max(loc)
+                recall, loc, au_roc = get_curve(loc, actual, predicted)
+                effort_plot(recall, loc, save_name=fname)
                 p_buggy = [a for a in ABCD(before=actual, after=predicted)()]
                 e.append([p_buggy[1].stats()[-1]])
 
                 pd.append(p_buggy[1].stats()[0])
                 pf.append(p_buggy[1].stats()[1])
-                e_d.append(p_buggy[1].stats()[-2])
+                auc.append(au_roc)
+
             stats.append([fname, int(np.mean(pd)), int(np.std(pd)),
                           int(np.mean(pf)), int(np.std(pf)),
-                          int(np.mean(e_d)), round(np.std(e_d))])
+                          int(np.mean(auc)), round(np.std(auc))])
 
-        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),
-                                 columns=["Name", "Pd (Mean)", "Pd (Std)", "Pf (Mean)", "Pf (Std)", "G (Mean)",
-                                          "G (Std)"])
         # set_trace()
-
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),
+                                 columns=["Name", "Pd (Mean)", "Pd (Std)", "Pf (Mean)", "Pf (Std)", "AUC (Mean)",
+                                          "AUC (Std)"])
         return stats
 
 
@@ -162,7 +166,7 @@ def jur():
     for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                  'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
         result.update({file: simulate(file, type='jur').bellwether()})
-
+    # set_trace()
     return result
 
 
