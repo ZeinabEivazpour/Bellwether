@@ -3,7 +3,7 @@ from __future__ import print_function, division
 import os
 import sys
 
-root = os.path.join(os.getcwd().split('src')[0], 'src')
+root = os.path.join(os.getcwd().split('smells')[0], 'smells')
 if root not in sys.path:
     sys.path.append(root)
 
@@ -21,7 +21,8 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import pandas
 from plot.effort_plot import effort_plot
-
+from glob import glob
+from tabulate import tabulate
 # from plot.effort_plot import effort_plot
 
 with warnings.catch_warnings():
@@ -82,7 +83,8 @@ def predict_defects(train, test, weka=True, cutoff=0.6):
     """
 
     actual = test[test.columns[-1]].values.tolist()
-    actual = [1 if act == "T" else 0 for act in actual]
+    # set_trace()
+    actual = [1 if act else 0 for act in actual]
 
     if weka:
         train.to_csv(root + '/TCA/tmp/train.csv', index=False)
@@ -111,12 +113,19 @@ def get_dcv(src, tgt):
     """Get dataset characteristic vector."""
     s_col = [col for col in src.columns[:-1] if '?' not in col]
     t_col = [col for col in tgt.columns[:-1] if '?' not in col]
+
+    for s,t in zip(s_col, t_col):
+        src[s] = src[s].astype(float).fillna(0.0)
+        tgt[t] = tgt[t].astype(float).fillna(0.0)
+
+
     S = src[s_col]
-    T = tgt[t_col]
+    T = src[t_col]
 
     def self_dist_mtx(arr):
         dist_arr = pdist(arr)
         return squareform(dist_arr)
+
 
     dist_src = self_dist_mtx(S.values)
     dist_tgt = self_dist_mtx(T.values)
@@ -190,15 +199,17 @@ def tca_plus(source, target, n_rep=12):
     :return: result
     """
     result = dict()
-
     for tgt_name, tgt_path in target.iteritems():
         stats = []
         print("{}  \r".format(tgt_name[0].upper() + tgt_name[1:]))
         val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
-                src = list2dataframe(src_path.data)
-                tgt = list2dataframe(tgt_path.data)
+
+                # set_trace()
+                src = list2dataframe(src_path)
+                tgt = list2dataframe(tgt_path)
+                # set_trace()
                 pd, pf, g, auc = [], [], [], []
                 dcv_src, dcv_tgt = get_dcv(src, tgt)
 
@@ -208,41 +219,54 @@ def tca_plus(source, target, n_rep=12):
                     _train, __test = map_transform(norm_src, norm_tgt)
                     # for k in np.arange(0.1,1,0.1):
                     actual, predicted, distribution = predict_defects(train=_train, test=__test)
-                    loc = tgt["$loc"].values
-                    loc = loc * 100 / np.max(loc)
-                    recall, loc, au_roc = get_curve(loc, actual, predicted)
-                    effort_plot(recall, loc,
-                                save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
-                                save_name=src_name)
+                    # loc = tgt["$loc"].values
+                    # loc = loc * 100 / np.max(loc)
+                    # recall, loc, au_roc = get_curve(loc, actual, predicted)
+                    # effort_plot(recall, loc,
+                    #             save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
+                    #             save_name=src_name)
                     p_d, p_f, p_r, rc, f_1, e_d, _g, _ = abcd(actual, predicted, distribution)
 
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
-                    auc.append(int(au_roc))
+                    # auc.append(int(au_roc))
 
                     # set_trace()
 
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
-                              int(np.mean(pf)), int(np.std(pf)),
-                              int(np.mean(auc)), int(np.std(auc))])  # ,
+                              int(np.mean(pf)), int(np.std(pf))])  # ,
+                              # int(np.mean(auc)), int(np.std(auc))])  # ,
                 # int(np.mean(g)), int(np.std(g))])
 
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
-                                          "Pf (Mean)", "Pf (Std)",
-                                          "AUC (Mean)", "AUC (Std)"])  # ,
+                                          "Pf (Mean)", "Pf (Std)"])  # ,,
+                                          # "AUC (Mean)", "AUC (Std)"])  # ,
         # "G (Mean)", "G (Std)"])
         result.update({tgt_name: stats})
     # set_trace()
     return result
 
+def get_all_datasets():
+    dir = os.path.abspath(os.path.join(root, "data"))
+    datasets = dict()
+    for datapath in  os.listdir(dir):
+        formatted_path = os.path.join(dir, datapath)
+        if os.path.isdir(formatted_path):
+            datasets.update({datapath: dict()})
+            files = glob(os.path.join(formatted_path, "*.csv"))
+            for f in files:
+                fname = f.split('/')[-1].split("-")[0]
+                datasets[datapath].update({fname: f})
+
+    return datasets
+
 
 def tca_jur():
-    from data.handler import get_all_projects
-    all = get_all_projects()
-    apache = all["Apache"]
-    return tca_plus(apache, apache, n_rep=1)
+    for smell_name, datasets in get_all_datasets().iteritems():
+        result = tca_plus(source=datasets, target=datasets, n_rep=1)
+        print(tabulate(result))
 
 
 if __name__ == "__main__":

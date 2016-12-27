@@ -52,8 +52,13 @@ def print_pandas(pd):
 
 
 def list2dataframe(lst):
-    data = [pd.read_csv(elem) for elem in lst]
-    return pd.concat(data, ignore_index=True)
+    if isinstance(lst, list):
+        data = [pd.read_csv(elem) for elem in lst]
+        return pd.concat(data, ignore_index=True)
+    elif isinstance(lst, str) and os.path.isfile(lst):
+        return pd.read_csv(lst)
+    else:
+        raise TypeError("This is not a path")
 
 
 def dump_json(result, dir='.', fname='data'):
