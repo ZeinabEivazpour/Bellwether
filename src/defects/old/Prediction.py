@@ -62,6 +62,8 @@ def rforest(train, test, smote=True, tunings=None, picksome=False):
     else:
         train_DF = formatdata(train, False, None)
         test_DF = formatdata(test, False, None)
+
+    set_trace()
     features = train_DF.columns[:-2]
     klass = train_DF[train_DF.columns[-2]]
     clf.fit(train_DF[features], klass)

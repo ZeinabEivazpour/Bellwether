@@ -20,7 +20,7 @@ def change_class_to_bool(fname):
 
 
 if __name__ == "__main__":
-    res = recursive_glob(".", "*.csv")
+    res = recursive_glob("./ant", "*.csv")
     for fname in res:
         change_class_to_bool(fname)
 

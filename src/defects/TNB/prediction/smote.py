@@ -8,6 +8,7 @@ from scipy.spatial.distance import euclidean
 from sklearn.neighbors import BallTree
 
 import warnings
+
 with warnings.catch_warnings():
     # Shut those god damn warnings up!
     warnings.filterwarnings("ignore")
@@ -37,7 +38,10 @@ def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
         new = len(one) * [None]
         new[:-1] = [a + rand(0, 1) * (b - a) for
                     a, b in zip(one[:-1], two[:-1])]
-        new[-1] = int(one[-1])
+        try:
+            new[-1] = int(one[-1])
+        except ValueError:
+            new[-1] = one[-1]
         return new
 
     def populate(data, atleast):
@@ -77,8 +81,8 @@ def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
     klass = lambda df: df[df.columns[-1]]
     count = Counter(klass(data))
     major, minor = count.keys()
-    atleast = 10*count[minor]
-    atmost = 5*count[major]
+    # atleast = 10 * count[minor]
+    # atmost = 5 * count[major]
     for u in count.keys():
         if u == minor:
             newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))

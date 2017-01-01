@@ -3,7 +3,7 @@ from __future__ import print_function, division
 import os
 import sys
 
-root = os.path.join(os.getcwd().split('smells')[0], 'smells')
+root = os.path.join(os.getcwd().split('src')[0], 'src/smells')
 if root not in sys.path:
     sys.path.append(root)
 
@@ -235,15 +235,23 @@ def tca_plus(source, target, n_rep=12):
                     # set_trace()
 
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
-                              int(np.mean(pf)), int(np.std(pf))])  # ,
-                              # int(np.mean(auc)), int(np.std(auc))])  # ,
+                              int(np.mean(pf)), int(np.std(pf)),
+                              int(np.mean(auc)), int(np.std(auc))])  # ,
                 # int(np.mean(g)), int(np.std(g))])
 
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
-                                          "Pf (Mean)", "Pf (Std)"])  # ,,
-                                          # "AUC (Mean)", "AUC (Std)"])  # ,
+                                          "Pf (Mean)", "Pf (Std)",
+                                          "AUC (Mean)", "AUC (Std)"])  # ,
         # "G (Mean)", "G (Std)"])
+
+        print(tabulate(stats,
+                       headers=["Name", "Pd (Mean)", "Pd (Std)",
+                                "Pf (Mean)", "Pf (Std)",
+                                "AUC (Mean)", "AUC (Std)"],
+                       showindex="never",
+                       tablefmt="fancy_grid"))
+
         result.update({tgt_name: stats})
     # set_trace()
     return result

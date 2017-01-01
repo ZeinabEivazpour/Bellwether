@@ -5,6 +5,7 @@ from sklearn.metrics import *
 from pdb import set_trace
 
 def abcd(actual, predicted, distribution, as_percent=True):
+    actual = [1 if a == "T" else 0 if a == "F" else a for a in actual]
     """
     Confusion Matrix:
 
@@ -23,8 +24,8 @@ def abcd(actual, predicted, distribution, as_percent=True):
         except ValueError:
             return [str(a) for a in lst]
 
-    # actual = stringify(actual)
-    # predicted = stringify(predicted)
+    actual = stringify(actual)
+    predicted = stringify(predicted)
     c_mtx = confusion_matrix(actual, predicted)
 
     "Probablity of Detection: Pd"
@@ -60,12 +61,12 @@ def abcd(actual, predicted, distribution, as_percent=True):
     e_d = 2 * p_d * (1 - p_f) / (1 + p_d - p_f)
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
     # set_trace()
-    auroc = round(roc_auc_score(actual, distribution), 2)
+    # auroc = round(roc_auc_score(actual, distribution), 2)
 
     if as_percent is True:
-        return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100, auroc * 100
+        return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100
     else:
-        return p_d, p_f, p_r, r_c, f1, e_d, g, auroc
+        return p_d, p_f, p_r, r_c, f1, e_d, g
 
 
 def print_stats(actual, predicted, name="name", header=False):

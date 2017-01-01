@@ -1,7 +1,7 @@
 import os
 import sys
 
-root = os.path.join(os.getcwd().split('src')[0], 'src')
+root = os.path.join(os.getcwd().split('src')[0], 'src/defects')
 if root not in sys.path:
     sys.path.append(root)
 from utils import explore
@@ -32,6 +32,7 @@ class _Data:
 
 class NASA:
     "NASA"
+
     def __init__(self):
         self.projects = {}
         for file in ["cm", "jm", "kc", "mc", "mw"]:
@@ -40,15 +41,17 @@ class NASA:
 
 class Jureczko:
     "Apache"
+
     def __init__(self):
         self.projects = {}
         for file in ['ant', 'camel', 'ivy', 'jedit', 'log4j',
                      'lucene', 'poi', 'velocity', 'xalan', 'xerces']:
-             self.projects.update({file: _Data(dataName=file, type='jur')})
+            self.projects.update({file: _Data(dataName=file, type='jur')})
 
 
 class AEEEM:
     "AEEEM"
+
     def __init__(self):
         self.projects = {}
         for file in ["EQ", "JDT", "LC", "ML", "PDE"]:
@@ -57,16 +60,19 @@ class AEEEM:
 
 class ReLink:
     "RELINK"
+
     def __init__(self):
         self.projects = {}
         for file in ["Apache", "Safe", "Zxing"]:
             self.projects.update({file: _Data(dataName=file, type='relink')})
 
+
 def get_all_projects():
     all = dict()
-    for community in [AEEEM, Jureczko, AEEEM, ReLink, NASA]:
+    for community in [Jureczko, AEEEM, ReLink, NASA]:
         all.update({community.__doc__: community().projects})
     return all
+
 
 def _test():
     data = NASA()
