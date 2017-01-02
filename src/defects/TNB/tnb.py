@@ -25,16 +25,13 @@ with warnings.catch_warnings():
     # Shut those god damn warnings up!
     warnings.filterwarnings("ignore")
 
+
 def target_details(test_set):
     """ Return Max and Min and 'Mass' from the test set """
     test_set = test_set[test_set.columns[3:-1]]
     hi, lo = test_set.max().values, test_set.min().values
     mass = test_set.size
     return lo, hi, mass
-
-
-def get_test_mass(test_set):
-    return
 
 
 def get_weights(train_set, test_set, maxs, mins):
@@ -59,10 +56,9 @@ def weight_training(weights, training_instance):
     return new_train
 
 
-def predict_defects(train, test, weka=False):
-
+def predict_defects(train, test, weka=True):
     actual = test[test.columns[-1]].values.tolist()
-
+    actual = [1 if act == "T" else 0 for act in actual]
     if weka:
         train.to_csv(root + '/TNB/tmp/train.csv', index=False)
         test.to_csv(root + '/TNB/tmp/test.csv', index=False)
@@ -94,10 +90,11 @@ def tnb(source, target, n_rep=12):
     :return: result
     """
     result = dict()
-
+    plot_data =[("Xalan", "Log4j", "Lucene", "Poi", "Velocity")]
     for tgt_name, tgt_path in target.iteritems():
         stats = []
-        print("{} | \r".format(tgt_name[0].upper() + tgt_name[1:]))
+        charts = []
+        print("{} \r".format(tgt_name[0].upper() + tgt_name[1:]))
         val = []
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
@@ -130,17 +127,16 @@ def tnb(source, target, n_rep=12):
                 # int(np.mean(g)), int(np.std(g))])
                 # print("")
         stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
-                                     columns=["Name", "Pd (Mean)", "Pd (Std)",
-                                              "Pf (Mean)", "Pf (Std)",
-                                              "AUC (Mean)", "AUC (Std)"])  # ,
-            # "G (Mean)", "G (Std)"])
+                                 columns=["Name", "Pd (Mean)", "Pd (Std)",
+                                          "Pf (Mean)", "Pf (Std)",
+                                          "AUC (Mean)", "AUC (Std)"])  # ,
+        # "G (Mean)", "G (Std)"])
         print(tabulate(stats,
                        headers=["Name", "Pd (Mean)", "Pd (Std)",
                                 "Pf (Mean)", "Pf (Std)",
                                 "AUC (Mean)", "AUC (Std)"],
                        showindex="never",
                        tablefmt="fancy_grid"))
-
 
         result.update({tgt_name: stats})
 
