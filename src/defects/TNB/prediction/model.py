@@ -56,7 +56,8 @@ def rf_model(source, target):
     klass = source[source.columns[-1]]
     clf.fit(source[features], klass)
     preds = clf.predict(target[target.columns[:-1]])
-    return preds
+    distr = clf.predict_proba(target[target.columns[:-1]])
+    return preds, distr[:,1]
 
 
 def rf_model_old(source, target):
@@ -90,7 +91,7 @@ def nbayes(source, target):
     clf.fit(source[features], klass)
     preds = clf.predict(target[target.columns[:-1]])
     distr = clf.predict_proba(target[target.columns[:-1]])
-    return preds, distr
+    return preds, distr[:,1]
 
 def _test_model():
     pass

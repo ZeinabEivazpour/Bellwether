@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import *
 from pdb import set_trace
 
-def abcd(actual, predicted, distribution, as_percent=True):
+def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     actual = [1 if a == "T" else 0 if a == "F" else a for a in actual]
     """
     Confusion Matrix:
@@ -24,8 +24,21 @@ def abcd(actual, predicted, distribution, as_percent=True):
         except ValueError:
             return [str(a) for a in lst]
 
-    actual = stringify(actual)
-    predicted = stringify(predicted)
+
+    try:
+        fpr, tpr, thresholds = roc_curve(actual, distribution)
+        auroc = round(roc_auc_score(actual, distribution), 2)
+        # set_trace()
+        for a, b, c in zip(fpr, tpr, thresholds):
+            if a < 0.31:
+                threshold = c
+        # set_trace()
+        predicted = [1 if val>threshold else 0 for val in distribution]
+    except:
+        auroc = 0
+        predicted = [1 if val is "T" else 0 for val in predicted]
+        set_trace()
+
     c_mtx = confusion_matrix(actual, predicted)
 
     "Probablity of Detection: Pd"
@@ -61,12 +74,10 @@ def abcd(actual, predicted, distribution, as_percent=True):
     e_d = 2 * p_d * (1 - p_f) / (1 + p_d - p_f)
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
     # set_trace()
-    # auroc = round(roc_auc_score(actual, distribution), 2)
-
     if as_percent is True:
-        return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100
+        return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100, auroc *100
     else:
-        return p_d, p_f, p_r, r_c, f1, e_d, g
+        return p_d, p_f, p_r, r_c, f1, e_d, g, auroc
 
 
 def print_stats(actual, predicted, name="name", header=False):

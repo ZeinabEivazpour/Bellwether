@@ -81,8 +81,7 @@ def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
     klass = lambda df: df[df.columns[-1]]
     count = Counter(klass(data))
     major, minor = count.keys()
-    # atleast = 10 * count[minor]
-    # atmost = 5 * count[major]
+
     for u in count.keys():
         if u == minor:
             newCells.extend(populate([r for r in data.as_matrix() if r[-1] == u], atleast=atleast))
