@@ -3,12 +3,12 @@ from __future__ import print_function, division
 import os
 import sys
 
-root = os.path.join(os.getcwd().split('src')[0], 'src')
+root = os.path.join(os.getcwd().split('src')[0], 'src/defects')
 if root not in sys.path:
     sys.path.append(root)
 
 import warnings
-from prediction.model import rf_model0
+from prediction.model import logistic_model
 from py_weka.classifier import classify
 from utils import *
 from metrics.abcd import abcd
@@ -21,7 +21,7 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import pandas
 from plot.effort_plot import effort_plot
-
+from tabulate import tabulate
 # from plot.effort_plot import effort_plot
 
 with warnings.catch_warnings():
@@ -69,7 +69,7 @@ def map_transform(src, tgt, n_components=5):
     return x0, y0
 
 
-def predict_defects(train, test, weka=True, cutoff=0.6):
+def predict_defects(train, test, weka=False, cutoff=0.6):
     """
 
     :param train:
@@ -99,11 +99,7 @@ def predict_defects(train, test, weka=True, cutoff=0.6):
         os.remove(root + '/TCA/tmp/test.csv')
 
     else:
-        # Binarize data
-        train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
-        test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
-        predicted = rf_model0(train, test)
-
+        predicted, distr = logistic_model(train, test)
     return actual, predicted, distr
 
 
@@ -210,16 +206,16 @@ def tca_plus(source, target, n_rep=12):
                     actual, predicted, distribution = predict_defects(train=_train, test=__test)
                     loc = tgt["$loc"].values
                     loc = loc * 100 / np.max(loc)
-                    recall, loc, au_roc = get_curve(loc, actual, predicted)
+                    recall, loc, au_roc = get_curve(loc, actual, predicted, distribution)
                     effort_plot(recall, loc,
                                 save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
                                 save_name=src_name)
-                    p_d, p_f, p_r, rc, f_1, e_d, _g, _ = abcd(actual, predicted, distribution)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, auroc = abcd(actual, predicted, distribution)
 
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
-                    auc.append(int(au_roc))
+                    auc.append(int(auroc))
 
                     # set_trace()
 
@@ -228,11 +224,17 @@ def tca_plus(source, target, n_rep=12):
                               int(np.mean(auc)), int(np.std(auc))])  # ,
                 # int(np.mean(g)), int(np.std(g))])
 
-        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
                                           "Pf (Mean)", "Pf (Std)",
                                           "AUC (Mean)", "AUC (Std)"])  # ,
-        # "G (Mean)", "G (Std)"])
+        print(tabulate(stats,
+                       headers=["Name", "Pd (Mean)", "Pd (Std)",
+                                "Pf (Mean)", "Pf (Std)",
+                                "AUC (Mean)", "AUC (Std)"],
+                       showindex="never",
+                       tablefmt="fancy_grid"))
+
         result.update({tgt_name: stats})
     # set_trace()
     return result

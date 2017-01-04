@@ -134,7 +134,7 @@ def weight_training(train, test, verbose=False):
             therest.extend(undersample(undersmp))
             therest.extend(oversample(oversamp))
         except:
-            therest = train0
+            pass
 
         weights = [t[1] for t in therest]
         therest = [t[0] for t in therest]
@@ -156,7 +156,7 @@ def weight_training(train, test, verbose=False):
         train1, w = resample(train1, w)
         sim = [t[1] for t in train1]
         try:trn = pd.DataFrame([t[0] for t in train1], columns=train.columns)
-        except:set_trace()
+        except:trn = pd.DataFrame([t for t in train1], columns=train.columns)
         w_trn = multiply_dframe(trn, w)
         # Create an SVM model
         X = w_trn[w_trn.columns[:-1]]
@@ -243,7 +243,7 @@ def tnb(source, target, n_rep=12):
                 pd.append(p_d)
                 pf.append(p_f)
                 g.append(_g)
-                auc.append(int(au_roc))
+                auc.append(int(auroc))
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
                               int(np.mean(auc)), int(np.std(auc))])

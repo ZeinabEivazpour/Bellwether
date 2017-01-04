@@ -37,7 +37,10 @@ def SMOTE(data=None, atleast=50, atmost=101, a=None, b=None, k=5):
         new = len(one) * [None]
         new[:-1] = [a + rand(0, 1) * (b - a) for
                     a, b in zip(one[:-1], two[:-1])]
-        new[-1] = int(one[-1])
+        try:
+            new[-1] = int(one[-1])
+        except ValueError:
+            new[-1] = one[-1]
         return new
 
     def populate(data, atleast):

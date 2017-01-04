@@ -77,8 +77,8 @@ def predict_defects(train, test, weka=False):
     else:
         # Binarize data
         # set_trace()
-        # predicted, distr = nbayes(train, test)
-        predicted, distr = rf_model(train, test)
+        predicted, distr = nbayes(train, test)
+        # predicted, distr = rf_model(train, test)
     return actual, predicted, distr
 
 
@@ -122,7 +122,7 @@ def tnb(source, target, n_rep=12):
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(_g)
-                    auc.append(int(au_roc))
+                    auc.append(int(auroc))
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
                               int(np.mean(auc)), int(np.std(auc))])  # ,

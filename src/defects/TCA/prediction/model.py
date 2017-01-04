@@ -5,7 +5,7 @@ import sys
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-
+from sklearn.linear_model import LogisticRegression
 from smote import SMOTE
 
 root = os.path.join(os.getcwd().split('src')[0], 'src')
@@ -72,11 +72,17 @@ def rf_model0(source, target, name):
     return rforest(train, test, tunings=getTunings(name))
 
 
-#
-# def logistic_model(source, target):
-#     train = df2thing(source)
-#     test = df2thing(target)
-#     return logistic_regression(train, test)
+
+def logistic_model(source, target):
+    # Binarize source
+    clf = LogisticRegression()
+    source = SMOTE(source)
+    features = source.columns[:-1]
+    klass = source[source.columns[-1]]
+    clf.fit(source[features], klass)
+    preds = clf.predict(target[target.columns[:-1]])
+    distr = clf.predict_proba(target[target.columns[:-1]])
+    return preds, distr[:,1]
 
 
 def _test_model():

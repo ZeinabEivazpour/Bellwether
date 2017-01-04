@@ -3,7 +3,7 @@ from __future__ import division, print_function
 import numpy as np
 from sklearn.metrics import *
 from pdb import set_trace
-
+from random import uniform
 def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     actual = [1 if a == "T" else 0 if a == "F" else a for a in actual]
     """
@@ -28,9 +28,9 @@ def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     try:
         fpr, tpr, thresholds = roc_curve(actual, distribution)
         auroc = round(roc_auc_score(actual, distribution), 2)
-        # set_trace()
+        cutoff = uniform(0.24, 0.31)
         for a, b, c in zip(fpr, tpr, thresholds):
-            if a < 0.31:
+            if a < cutoff:
                 threshold = c
         # set_trace()
         predicted = [1 if val>threshold else 0 for val in distribution]
