@@ -209,7 +209,7 @@ def predict_defects(test, weights, classifiers):
     return actuals, predicted, distribution
 
 
-def tnb(source, target, n_rep=12):
+def vcb(source, target, n_rep=12):
     """
     TNB: Transfer Naive Bayes
     :param source:
@@ -230,20 +230,21 @@ def tnb(source, target, n_rep=12):
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
                 pd, pf, g, auc = [], [], [], []
-                _train, clf_w, classifiers = weight_training(train=src, test=tgt)
-                actual, predicted, distribution = predict_defects(tgt, clf_w, classifiers)
-                loc = tgt["$loc"].values
-                loc = loc * 100 / np.max(loc)
-                recall, loc, au_roc = get_curve(loc, actual, predicted, distribution)
-                effort_plot(recall, loc,
-                            save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
-                            save_name=src_name)
-                p_d, p_f, p_r, rc, f_1, e_d, _g, auroc = abcd(actual, predicted, distribution)
+                for _ in xrange(n_rep):
+                    _train, clf_w, classifiers = weight_training(train=src, test=tgt)
+                    actual, predicted, distribution = predict_defects(tgt, clf_w, classifiers)
+                    loc = tgt["$loc"].values
+                    loc = loc * 100 / np.max(loc)
+                    recall, loc, au_roc = get_curve(loc, actual, predicted, distribution)
+                    effort_plot(recall, loc,
+                                save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
+                                save_name=src_name)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, auroc = abcd(actual, predicted, distribution)
 
-                pd.append(p_d)
-                pf.append(p_f)
-                g.append(_g)
-                auc.append(int(auroc))
+                    pd.append(p_d)
+                    pf.append(p_f)
+                    g.append(_g)
+                    auc.append(int(auroc))
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
                               int(np.mean(auc)), int(np.std(auc))])
@@ -261,8 +262,6 @@ def tnb(source, target, n_rep=12):
                        tablefmt="fancy_grid"))
 
         result.update({tgt_name: stats})
-
-    set_trace()
     return result
 
 
@@ -270,7 +269,7 @@ def tnb_jur():
     from data.handler import get_all_projects
     all = get_all_projects()
     apache = all["Apache"]
-    return tnb(apache, apache, n_rep=1)
+    return vcb(apache, apache, n_rep=1)
 
 
 if __name__ == "__main__":

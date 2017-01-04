@@ -11,7 +11,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 from old.rq1 import jur
-from TCA.tca_plus import tca_jur
+from TCA.execute import tca_jur
 import multiprocessing
 from pdb import set_trace
 from stats.effect_size import hedges_g_2

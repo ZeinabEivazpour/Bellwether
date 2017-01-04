@@ -236,7 +236,6 @@ def tca_plus(source, target, n_rep=12):
                        tablefmt="fancy_grid"))
 
         result.update({tgt_name: stats})
-    # set_trace()
     return result
 
 

@@ -7,7 +7,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 import warnings
-from prediction.model import nbayes, rf_model0
+from prediction.model import nbayes, rf_model
 from py_weka.classifier import classify
 from utils import *
 from metrics.abcd import abcd
@@ -40,7 +40,7 @@ def get_weights(train_set, test_set, maxs, mins):
     k = len(train_set.columns)
     w_i = []
     for i in xrange(len(train_set)):
-        s = np.sum([1 if lo <= val < hi else 0 for lo, val, hi in zip(mins, train_set.ix[i].values, maxs)])
+        s = np.sum([1 if lo <= val < hi else 0 for lo, val, hi in zip(mins, train_set.ix[i].values, maxs)])/k
         w_i.append((k * s * mass) / (k - s + 1) ** 2)
     return w_i
 
@@ -56,7 +56,7 @@ def weight_training(weights, training_instance):
     return new_train
 
 
-def predict_defects(train, test, weka=True):
+def predict_defects(train, test, weka=False):
     actual = test[test.columns[-1]].values.tolist()
     actual = [1 if act == "T" else 0 for act in actual]
     if weka:
@@ -76,8 +76,9 @@ def predict_defects(train, test, weka=True):
 
     else:
         # Binarize data
-        # predicted, distr = nbayes(train, test)
-        predicted, distr = rf_model0(train, test)
+        # set_trace()
+        predicted, distr = nbayes(train, test)
+        # predicted, distr = rf_model(train, test)
     return actual, predicted, distr
 
 
@@ -102,31 +103,32 @@ def tnb(source, target, n_rep=12):
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
                 pd, pf, g, auc = [], [], [], []
-                lo, hi, test_mass = target_details(tgt)
-                weights = get_weights(maxs=hi, mins=lo, train_set=src, test_set=tgt)
-                _train = weight_training(weights=weights, training_instance=src)
-                __test = (tgt[tgt.columns[:-1]] - tgt[tgt.columns[:-1]].min()) / (
-                    tgt[tgt.columns[:-1]].max() - tgt[tgt.columns[:-1]].min())
-                __test[tgt.columns[-1]] = tgt[tgt.columns[-1]]
-                actual, predicted, distribution = predict_defects(train=_train, test=__test)
-                loc = tgt["$loc"].values
-                loc = loc * 100 / np.max(loc)
-                recall, loc, au_roc = get_curve(loc, actual, predicted)
-                effort_plot(recall, loc,
-                            save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
-                            save_name=src_name)
-                p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted, distribution)
+                for _ in xrange(n_rep):
+                    lo, hi, test_mass = target_details(tgt)
+                    weights = get_weights(maxs=hi, mins=lo, train_set=src, test_set=tgt)
+                    _train = weight_training(weights=weights, training_instance=src)
+                    __test = (tgt[tgt.columns[:-1]] - tgt[tgt.columns[:-1]].min()) / (
+                        tgt[tgt.columns[:-1]].max() - tgt[tgt.columns[:-1]].min())
+                    __test[tgt.columns[-1]] = tgt[tgt.columns[-1]]
+                    actual, predicted, distribution = predict_defects(train=_train, test=__test)
+                    loc = tgt["$loc"].values
+                    loc = loc * 100 / np.max(loc)
+                    recall, loc, au_roc = get_curve(loc, actual, predicted, distribution)
+                    effort_plot(recall, loc,
+                                save_dest=os.path.abspath(os.path.join(root, "plot", "plots", tgt_name)),
+                                save_name=src_name)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, auroc = abcd(actual, predicted, distribution, threshold=0.4)
 
-                pd.append(p_d)
-                pf.append(p_f)
-                g.append(_g)
-                auc.append(int(au_roc))
+                    pd.append(p_d)
+                    pf.append(p_f)
+                    g.append(_g)
+                    auc.append(int(auroc))
                 stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
                               int(np.mean(pf)), int(np.std(pf)),
                               int(np.mean(auc)), int(np.std(auc))])  # ,
                 # int(np.mean(g)), int(np.std(g))])
                 # print("")
-        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
                                           "Pf (Mean)", "Pf (Std)",
                                           "AUC (Mean)", "AUC (Std)"])  # ,
@@ -140,7 +142,6 @@ def tnb(source, target, n_rep=12):
 
         result.update({tgt_name: stats})
 
-    set_trace()
     return result
 
 

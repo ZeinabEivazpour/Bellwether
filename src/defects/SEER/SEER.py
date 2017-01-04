@@ -7,8 +7,7 @@ root = os.path.join(os.getcwd().split('src')[0], 'src')
 if root not in sys.path:
     sys.path.append(root)
 
-from prediction.model import rf_model, rf_model0
-from old.stats import ABCD
+from prediction.model import rf_model
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from numpy.random import choice
@@ -21,12 +20,7 @@ from pdb import set_trace
 from time import time
 import pandas
 from py_weka.classifier import classify
-
-#  Shut those god damn warnings up!
-import warnings
-
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
+from tabulate import tabulate
 
 
 def get_kernel_matrix(dframe, n_components=5):
@@ -41,40 +35,24 @@ def get_kernel_matrix(dframe, n_components=5):
     return kernel
 
 
-def map_transform(src, tgt, n_components=5):
+def map_transform(training_instance, test_instance, n_components=5):
     """
-    Run a map and transform x and y onto a new space using TCA
+    Run a map and transform x and y onto a new space using PCA
     :param src: IID samples
     :param tgt: IID samples
     :return: Mapped x and y
     """
-    s_col = [col for col in src.columns[:-1] if '?' not in col]
-    t_col = [col for col in tgt.columns[:-1] if '?' not in col]
-    S = src[s_col]
-    S.columns = xrange(len(s_col))
-    T = tgt[t_col]
-    T.columns = xrange(len(t_col))
+    head = training_instance.columns
+    new_train = training_instance[head[:-1]]
 
-    all = pd.concat([S, T])
-    N = int(min(len(S), len(T)))
-
-    "Make sure x0, y0 are the same size. Note: This is rerun multiple times."
-    if len(S) > len(T):
-        x0, y0 = S.sample(n=N), T
-    elif len(S) < len(T):
-        x0, y0 = S, T.sample(n=N)
-    else:
-        x0, y0 = S, T
-
-    mapper = get_kernel_matrix(all, n_components=5)
-
-    x0 = pd.DataFrame(mapper.transform(x0), columns=xrange(n_components))
-    y0 = pd.DataFrame(mapper.transform(y0), columns=xrange(n_components))
-
-    x0.loc[:, src.columns[-1]] = pd.Series(src[src.columns[-1]], index=x0.index)
-    y0.loc[:, tgt.columns[-1]] = pd.Series(tgt[tgt.columns[-1]], index=y0.index)
-
-    return x0, y0
+    new_train = (new_train - test_instance[head[:-1]].min()) / (test_instance[head[:-1]].max() - test_instance[head[:-1]].min())
+    new_train[head[-1]] = training_instance[head[-1]]
+    try:
+        new_test = (test_instance - test_instance[head[:-1]].min()) / (test_instance[head[:-1]].max() - test_instance[head[:-1]].min())
+        new_test[head[-1]] = test_instance[head[-1]]
+    except:
+        set_trace()
+    return new_train, new_test[new_train.columns]
 
 
 def cause_effect(x, y):
@@ -154,7 +132,7 @@ def metrics_match(src, tgt, n_redo):
     return selected_col
 
 
-def predict_defects(train, test, weka=True):
+def predict_defects(train, test, weka=False):
     """
 
     :param train:
@@ -166,31 +144,36 @@ def predict_defects(train, test, weka=True):
     :return:
     """
 
+    # actual = test[test.columns[-1]].values.tolist()
+    # actual = [1 if act == "T" else 0 for act in actual]
+    #
+    # if weka:
+    #     train.to_csv('./tmp/train.csv', index=False)
+    #     test.to_csv('./tmp/test.csv', index=False)
+    #
+    #     predicted = classify(train=os.path.abspath('./tmp/train.csv'),
+    #                          test=os.path.abspath('./tmp/test.csv'),
+    #                          name="rf")
+    #
+    #     # set_trace()
+    #
+    #     predicted = [1 if p > 0.5 else 0 for p in predicted]
+    #
+    #     # Remove temporary csv files to avoid conflicts
+    #     os.remove('./tmp/train.csv')
+    #     os.remove('./tmp/test.csv')
+    # else:
+    #     # Binarize data
+    #     train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
+    #     test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
+    #     predicted, distr = rf_model(train, test)
+    #
+    # return actual, predicted, distr
+
     actual = test[test.columns[-1]].values.tolist()
     actual = [1 if act == "T" else 0 for act in actual]
-
-    if weka:
-        train.to_csv('./tmp/train.csv', index=False)
-        test.to_csv('./tmp/test.csv', index=False)
-
-        predicted = classify(train=os.path.abspath('./tmp/train.csv'),
-                             test=os.path.abspath('./tmp/test.csv'),
-                             name="rf")
-
-        # set_trace()
-
-        predicted = [1 if p > 0.5 else 0 for p in predicted]
-
-        # Remove temporary csv files to avoid conflicts
-        os.remove('./tmp/train.csv')
-        os.remove('./tmp/test.csv')
-    else:
-        # Binarize data
-        train.loc[train[train.columns[-1]] > 0, train.columns[-1]] = 1
-        test.loc[test[test.columns[-1]] > 0, test.columns[-1]] = 1
-        predicted = rf_model0(train, test)
-
-    return actual, predicted
+    predicted, distr = rf_model(train, test)
+    return actual, predicted, distr
 
 
 def seer(source, target, n_rep=20, n_redo=5):
@@ -204,11 +187,12 @@ def seer(source, target, n_rep=20, n_redo=5):
     t0 = time()
     for tgt_name, tgt_path in target.iteritems():
         stats = []
+        print("{} \r".format(tgt_name[0].upper() + tgt_name[1:]))
         for src_name, src_path in source.iteritems():
             if not src_name == tgt_name:
                 src = list2dataframe(src_path.data)
                 tgt = list2dataframe(tgt_path.data)
-                pd, pf, g = [], [], []
+                pd, pf, g, auc = [], [], [], []
 
                 matched_src = metrics_match(src, tgt, n_redo)
 
@@ -224,32 +208,40 @@ def seer(source, target, n_rep=20, n_redo=5):
                         if not elem[1] in source_columns:
                             target_columns.append(elem[0])
                             source_columns.append(elem[1])
+                    selected_col = list(set(target_columns).intersection(source_columns))
+                    _train, __test = map_transform(src[selected_col + [src.columns[-1]]],
+                                             tgt[selected_col + [tgt.columns[-1]]])
 
-                    _train, __test = src[source_columns + [src.columns[-1]]], \
-                                     tgt[target_columns + [tgt.columns[-1]]]
-
-                    # _train, __test = map_transform(src[source_columns + [src.columns[-1]]],
-                    #                          tgt[target_columns + [tgt.columns[-1]]])
+                    # _train, __test = src[source_columns + [src.columns[-1]]], \
+                    #                  tgt[target_columns + [tgt.columns[-1]]]
 
                     # set_trace()
-                    actual, predicted = predict_defects(train=_train, test=__test)
-                    p_d, p_f, p_r, rc, f_1, e_d, _g = abcd(actual, predicted)
+                    actual, predicted, distribution = predict_defects(train=_train, test=__test)
+                    p_d, p_f, p_r, rc, f_1, e_d, _g, auroc = abcd(actual, predicted, distribution)
                     pd.append(p_d)
                     pf.append(p_f)
                     g.append(e_d)
+                    auc.append(int(auroc))
 
-                stats.append([src_name, round(np.mean(pd), 2), round(np.std(pd)),
-                              round(np.mean(pf), 2), round(np.std(pf), 2),
-                              round(np.mean(g), 2), round(np.std(g), 2)])
-                # set_trace()
+                stats.append([src_name, int(np.mean(pd)), int(np.std(pd)),
+                              int(np.mean(pf)), int(np.std(pf)),
+                              int(np.mean(auc)), int(np.std(auc))])  # ,
 
-        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[0]),  # Sort by G Score
+        stats = pandas.DataFrame(sorted(stats, key=lambda lst: lst[-2], reverse=True),  # Sort by G Score
                                  columns=["Name", "Pd (Mean)", "Pd (Std)",
                                           "Pf (Mean)", "Pf (Std)",
-                                          "G (Mean)", "G (Std)"])
-        set_trace()
+                                          "AUC (Mean)", "AUC (Std)"])  # ,
+        # "G (Mean)", "G (Std)"])
+        print(tabulate(stats,
+                       headers=["Name", "Pd (Mean)", "Pd (Std)",
+                                "Pf (Mean)", "Pf (Std)",
+                                "AUC (Mean)", "AUC (Std)"],
+                       showindex="never",
+                       tablefmt="fancy_grid"))
+
         result.update({tgt_name: stats})
     return result
+
 
 
 """
