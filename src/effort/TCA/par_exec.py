@@ -11,7 +11,7 @@ if root not in sys.path:
     sys.path.append(root)
 
 from data.handler import get_all_projects
-from tca_plus import tca_plus
+from execute import tca_plus
 import multiprocessing
 from pdb import set_trace
 from utils import brew_pickle, dump_json

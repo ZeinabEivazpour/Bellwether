@@ -5,7 +5,7 @@ from sklearn.metrics import *
 from pdb import set_trace
 from random import uniform
 def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
-    actual = [1 if a == "T" else 0 if a == "F" else a for a in actual]
+    actual = [1 if a > 0 else 0 for a in actual]
     """
     Confusion Matrix:
 
@@ -28,7 +28,7 @@ def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     try:
         fpr, tpr, thresholds = roc_curve(actual, distribution)
         auroc = round(roc_auc_score(actual, distribution), 2)
-        cutoff = uniform(0.24, 0.31)
+        cutoff = uniform(0.27, 0.31)
         for a, b, c in zip(fpr, tpr, thresholds):
             if a < cutoff:
                 threshold = c
@@ -36,28 +36,28 @@ def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
         predicted = [1 if val>threshold else 0 for val in distribution]
     except:
         auroc = 0
-        predicted = [1 if val is "T" else 0 for val in predicted]
-        set_trace()
+        # set_trace()
+        predicted = [1 if val > 0 else 0 for val in predicted]
 
     c_mtx = confusion_matrix(actual, predicted)
 
     "Probablity of Detection: Pd"
     try:
         p_d = c_mtx[1][1] / (c_mtx[1][1] + c_mtx[1][0])  # TP/(TP+FN)
-    except ZeroDivisionError:
+    except :
         p_d = 0
 
     "Probability of False Alarm: Pf"
     try:
         p_f = c_mtx[0][1] / (c_mtx[0][1] + c_mtx[0][0])  # FP/(FP+TN)
-    except ZeroDivisionError:
+    except :
         p_f = 0
 
     "Precision"
     try:
         p_r = c_mtx[1][1] / (c_mtx[1][1] + c_mtx[0][1])  # TP/(TP+FP)
         if not np.isfinite(p_r): p_r = 0
-    except ZeroDivisionError:
+    except :
         p_r = 0
 
     "Recall (Same as Pd)"
@@ -66,7 +66,7 @@ def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     "F1 measure"
     try:
         f1 = 2 * c_mtx[1][1] / (2 * c_mtx[1][1] + c_mtx[0][1] + 1 * c_mtx[1][0])  # F1 = 2*TP/(2*TP+FP+FN)
-    except ZeroDivisionError:
+    except :
         f1 = 0
 
     ed = np.sqrt(0.7 * (1 - p_d) ** 2 + 0.3 * p_f ** 2)
@@ -74,6 +74,8 @@ def abcd(actual, predicted, distribution, as_percent=True, threshold=0):
     e_d = 2 * p_d * (1 - p_f) / (1 + p_d - p_f)
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
     # set_trace()
+    if np.isnan(p_d or p_f or p_r or r_c or f1 or e_d or g or auroc):
+        return 0,0,0,0,0,0,0,0
     if as_percent is True:
         return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100, auroc *100
     else:

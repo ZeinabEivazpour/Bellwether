@@ -97,12 +97,12 @@ def df_norm(dframe, type="normal"):
     bugs = dframe[dframe.columns[-1]]
     if type == "min_max":
         dframe = (dframe - dframe.min()) / (dframe.max() - dframe.min() + 1e-32)
-        dframe["$<bug"] = bugs
+        dframe[col[-1]] = bugs
         return dframe[col]
 
     if type == "normal":
         dframe = (dframe - dframe.mean()) / dframe.std()
-        dframe["$<bug"] = bugs
+        dframe[col[-1]] = bugs
         return dframe[col]
 
 
