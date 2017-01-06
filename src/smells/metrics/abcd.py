@@ -64,7 +64,10 @@ def abcd(actual, predicted, distribution, as_percent=True):
     e_d = 2 * p_d * (1 - p_f) / (1 + p_d - p_f)
     g = np.sqrt(p_d - p_d * p_f)  # Harmonic Mean between True positive rate and True negative rate
     # set_trace()
-    auroc = round(roc_auc_score(actual, distribution), 2)
+    try:
+        auroc = round(roc_auc_score(actual, distribution), 2)
+    except:
+        auroc = 0
 
     if as_percent is True:
         return p_d * 100, p_f * 100, p_r * 100, r_c * 100, f1 * 100, e_d * 100, g * 100, auroc * 100
