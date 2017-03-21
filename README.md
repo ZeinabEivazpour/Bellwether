@@ -40,7 +40,7 @@ Eprint = {arXiv:1703.06218},
 + [Code Smells](https://github.com/rahlk/Bellwether/tree/master/smells)
 + [Effort Estimation](https://github.com/rahlk/Bellwether/tree/master/effort)
 + [Defect Prediction](https://github.com/rahlk/Bellwether/tree/master/defects)
-+ [Issue Lifetime Estimation](https://github.com/rahlk/Bellwether/tree/master/IssueLifetime)
++ [Issue Lifetime Estimation](https://github.com/rahlk/Bellwether/tree/master/issueCloseTime)
 
 ## License
 
