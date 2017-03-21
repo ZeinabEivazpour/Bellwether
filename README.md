@@ -5,41 +5,42 @@
 
 ## Submission 
 
-Submitted to [Information and Software Technology](https://www.journals.elsevier.com/information-and-software-technology/). ARXIV Link: https://arxiv.org/abs/1609.03614v3
+Submitted to [Transactions on Software Engineering](https://www.computer.org/web/tse). ARXIV Link: https://arxiv.org/abs/1703.06218
 
 ## Cite As
 
 ```
-@misc{1609.03614,
-Author = {Rahul Krishna and Tim Menzies and Lucas Layman},
-Title = {Less is More: Minimizing Code Reorganization using XTREE},
-Year = {2016},
-journal= {Information and Software Technology, submitted},
-Eprint = {arXiv:1609.03614},
+@misc{1703.06218,
+Author = {Rahul Krishna and Tim Menzies},
+Title = {Simpler Transfer Learning (Using "Bellwethers")},
+Year = {2017},
+Eprint = {arXiv:1703.06218},
 }
 ```
 
 ## Authors
 
-+ Rahul Krishna, Tim Menzies
++ Rahul Krishna
   + Com. Sci., NC State, USA 
   + i.m.ralk@gmail.com
++ Tim Menzies
+  + Com. Sci., NC State, USA 
   + tim.menzies@gmail.com
-+ Lucas Layman
-  + Fraunhofer CESE, College Park, USA, 
-  + llayman@fc-md.umd.edu
 
 ## Data
 
-+ [Jurecko defect data](http://openscience.us/repo/defect/ck)
++ [SEACRAFT on (Zenodo)]()
 
 ## Latex Source
 
-+ [Information and Software Technology Submission](https://github.com/ai-se/XTREE/tree/master/doc/IST)
++ [Transactions on Software Engineering Submission](https://github.com/ai-se/XTREE/tree/master/doc/IST)
 
 ## Source Code
 
-+ [XTREES](https://github.com/ai-se/XTREE/tree/master/src)
++ [Code Smells](https://github.com/ai-se/XTREE/tree/master/src)
++ [Effort Estimation](https://github.com/ai-se/XTREE/tree/master/src)
++ [Defect Prediction](https://github.com/ai-se/XTREE/tree/master/src)
++ [Issue Lifetime Estimation](https://github.com/ai-se/XTREE/tree/master/src)
 
 ## License
 
