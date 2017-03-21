@@ -33,7 +33,7 @@ Eprint = {arXiv:1703.06218},
 
 ## Latex Source
 
-+ [Transactions on Software Engineering Submission](https://github.com/ai-se/XTREE/tree/master/doc/IST)
++ [Transactions on Software Engineering Submission](https://github.com/ai-se/Bellwethers-jour)
 
 ## Source Code
 
