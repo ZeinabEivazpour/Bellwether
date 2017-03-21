@@ -37,10 +37,10 @@ Eprint = {arXiv:1703.06218},
 
 ## Source Code
 
-+ [Code Smells](https://github.com/ai-se/XTREE/tree/master/src)
-+ [Effort Estimation](https://github.com/ai-se/XTREE/tree/master/src)
-+ [Defect Prediction](https://github.com/ai-se/XTREE/tree/master/src)
-+ [Issue Lifetime Estimation](https://github.com/ai-se/XTREE/tree/master/src)
++ [Code Smells](https://github.com/rahlk/Bellwether/tree/master/smells)
++ [Effort Estimation](https://github.com/rahlk/Bellwether/tree/master/effort)
++ [Defect Prediction](https://github.com/rahlk/Bellwether/tree/master/defects)
++ [Issue Lifetime Estimation](https://github.com/rahlk/Bellwether/tree/master/IssueLifetime)
 
 ## License
 
